@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import requests, math, asyncio
+import requests, math, asyncio, random, os
 from timeit import default_timer as timer
 import border
 
@@ -32,37 +32,62 @@ async def ping(ctx):
     time = math.trunc((timer() - startTime) * 1000)
     await m.edit(content="that took **%dms**" % time)
 
+@bot.command(name='random', description='Generate a border with random parameters')
+@commands.cooldown(5,30)
+async def random_command(ctx):
+    req = requests.get(ctx.author.avatar_url)
+    filepath = "avatars/" + ctx.author.avatar + '.webp'
+    open(filepath, 'wb').write(req.content)
+
+    filepath = border.GenerateBasic(filepath, ('#'+"%06x" % random.randint(0, 0xFFFFFF)), random.random() / 2)
+    await ctx.send(file=discord.File(filepath))
+
+@bot.command(name='randomTexture', description='Generate a border with random parameters')
+@commands.cooldown(5,30)
+async def randomTextured_command(ctx):
+    req = requests.get(ctx.author.avatar_url)
+    filepath = "avatars/" + ctx.author.avatar + '.webp'
+    open(filepath, 'wb').write(req.content)
+
+    texturepath = "textures/" + random.choice(os.listdir("textures/"))
+    filepath = border.GenerateWithTexture(filepath, texturepath, random.random() / 2)
+
+    await ctx.send(file=discord.File(filepath))
+
 @bot.command(name='border', description='Add a single color border to your avatar', usage="(color) (decimal between 0 - 1)")
 @commands.cooldown(2, 5)
 async def border_command(ctx):
-    startTime = timer()
-    
-    req = requests.get(ctx.author.avatar_url)
-
-    filepath = "avatars/" + ctx.author.avatar + '.webp'
-    open(filepath, 'wb').write(req.content)
-    
-    downloadTime = math.trunc((timer() - startTime) * 1000)
-    startTime = timer()
-    
-    try:
-        colorWidth = ctx.message.content.replace(">border ", "").split()
-        
-        try:
-            size = float(colorWidth[1])
-        except:
-            size = 0.1
-
-        filepath = border.GenerateBasic(filepath, colorWidth[0], size)
-        processTime = math.trunc((timer() - startTime) * 1000)
+    if ctx.author.avatar_url.endswith(".gif?size=1024"):
+        await ctx.send("Please use the borderGif command instead")
+    else:
         startTime = timer()
         
-        await ctx.send(file=discord.File(filepath))
-        uploadTime = math.trunc((timer() - startTime) * 1000)
-        await ctx.send("that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime))
-    except:
-        await ctx.send("Invalid command, please try again")
-        await ctx.send("make sure to include a color, the border size is optional")
+        req = requests.get(ctx.author.avatar_url)
+
+        filepath = "avatars/" + ctx.author.avatar + '.webp'
+        open(filepath, 'wb').write(req.content)
+        
+        downloadTime = math.trunc((timer() - startTime) * 1000)
+        startTime = timer()
+        
+        try:
+            colorWidth = ctx.message.content.replace(">border ", "").split()
+            
+            try:
+                size = float(colorWidth[1])
+            except:
+                size = 0.1
+
+            filepath = border.GenerateBasic(filepath, colorWidth[0], size)
+            processTime = math.trunc((timer() - startTime) * 1000)
+            startTime = timer()
+            
+            await ctx.send(file=discord.File(filepath))
+            uploadTime = math.trunc((timer() - startTime) * 1000)
+            await ctx.send("that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime))
+        except:
+            await ctx.send("Invalid command, please try again")
+            await ctx.send("make sure to include a color, the border size is optional")
 
 @bot.command(name='editor', description='This lets you edit your border in real time', aliases=['edit'])
 @commands.cooldown(1, 60)
