@@ -17,6 +17,19 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
 
+@bot.command(name='feedback', description="Give feedback to improve the bot's functionality", aliases=['question'], usage="Feedback-Feedback-Feedback")
+@commands.cooldown(5,600)
+async def feedback(ctx):
+    if ctx.message.content.replace(">feedback", "") == "" or ctx.message.content.replace(">question", "") == "":
+        if random.randint(0, 2) == 0:
+            await ctx.send("😡, It's blank you NONCE!")
+        else:
+            await ctx.send("😕, Is it in invisible ink?")
+    else:
+        f = open("feedback.txt", "a")
+        f.write(ctx.message.content.replace(">feedback", "").replace(">question", "") + "\n")
+        await ctx.send("Thanks, if this is any good I'll give you some garlicoin")
+
 @bot.command(name='avatar', description='Gets you a link to someones avatar', aliases=['pfp'], usage="@user")
 async def avatar(ctx):
     try:
@@ -32,15 +45,23 @@ async def ping(ctx):
     time = math.trunc((timer() - startTime) * 1000)
     await m.edit(content="that took **%dms**" % time)
 
-@bot.command(name='random', description='Generate a border with random parameters')
+@bot.command(name='random', description='Generate a border with random parameters', usage="number of images to generate (max 5)")
 @commands.cooldown(5,30)
 async def random_command(ctx):
-    req = requests.get(ctx.author.avatar_url)
-    filepath = "avatars/" + ctx.author.avatar + '.webp'
-    open(filepath, 'wb').write(req.content)
+    try:
+        times = int(ctx.message.content.replace(">random ", ""))
+        if  (times < 1 or times > 5):
+            raise Exception
+    except:
+        times = 1
 
-    filepath = border.GenerateBasic(filepath, ('#'+"%06x" % random.randint(0, 0xFFFFFF)), random.random() / 2)
-    await ctx.send(file=discord.File(filepath))
+    for i in range(0,times):
+        req = requests.get(ctx.author.avatar_url)
+        filepath = "avatars/" + ctx.author.avatar + '.webp'
+        open(filepath, 'wb').write(req.content)
+
+        filepath = border.GenerateBasic(filepath, ('#'+"%06x" % random.randint(0, 0xFFFFFF)), random.random() / 3 + 0.05)
+        await ctx.send(file=discord.File(filepath))
 
 @bot.command(name='randomTexture', description='Generate a border with random parameters')
 @commands.cooldown(5,30)
@@ -50,44 +71,55 @@ async def randomTextured_command(ctx):
     open(filepath, 'wb').write(req.content)
 
     texturepath = "textures/" + random.choice(os.listdir("textures/"))
-    filepath = border.GenerateWithTexture(filepath, texturepath, random.random() / 2)
+    filepath = border.GenerateWithTexture(filepath, texturepath, random.random() / 3 + 0.05)
 
     await ctx.send(file=discord.File(filepath))
 
 @bot.command(name='border', description='Add a single color border to your avatar', usage="(color) (decimal between 0 - 1)")
 @commands.cooldown(2, 5)
 async def border_command(ctx):
-    if ctx.author.avatar_url.endswith(".gif?size=1024"):
-        await ctx.send("Please use the borderGif command instead")
-    else:
+    try:
+        if ctx.author.avatar_url.endswith(".gif?size=1024"):
+            await ctx.send("baited 🎣")
+            await asyncio.sleep(1)
+            await ctx.send("*again*")
+            await asyncio.sleep(3)
+            await ctx.send("jk")
+            
         startTime = timer()
-        
+            
         req = requests.get(ctx.author.avatar_url)
 
-        filepath = "avatars/" + ctx.author.avatar + '.webp'
+        if ctx.author.avatar_url.endswith(".gif?size=1024"):
+            filepath = "avatars/" + ctx.author.avatar + '.gif'
+        else:
+            filepath = "avatars/" + ctx.author.avatar + '.webp'
+
         open(filepath, 'wb').write(req.content)
-        
+            
         downloadTime = math.trunc((timer() - startTime) * 1000)
         startTime = timer()
-        
+            
+        colorWidth = ctx.message.content.replace(">border ", "").split()
+                
         try:
-            colorWidth = ctx.message.content.replace(">border ", "").split()
-            
-            try:
-                size = float(colorWidth[1])
-            except:
-                size = 0.1
-
-            filepath = border.GenerateBasic(filepath, colorWidth[0], size)
-            processTime = math.trunc((timer() - startTime) * 1000)
-            startTime = timer()
-            
-            await ctx.send(file=discord.File(filepath))
-            uploadTime = math.trunc((timer() - startTime) * 1000)
-            await ctx.send("that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime))
+            size = float(colorWidth[1])
         except:
-            await ctx.send("Invalid command, please try again")
-            await ctx.send("make sure to include a color, the border size is optional")
+            size = 0.1
+
+        if ctx.author.avatar_url.endswith(".gif?size=1024"):
+            border.GenerateGif(filepath, colorWidth[0], size)
+        else:
+            filepath = border.GenerateBasic(filepath, colorWidth[0], size)
+        
+        processTime = math.trunc((timer() - startTime) * 1000)
+        startTime = timer()
+                
+        await ctx.send(file=discord.File(filepath))
+        uploadTime = math.trunc((timer() - startTime) * 1000)
+        await ctx.send("that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime))
+    except:
+        await ctx.send("Invalid command, make sure to include a color, the border size is optional")
 
 @bot.command(name='editor', description='This lets you edit your border in real time', aliases=['edit'])
 @commands.cooldown(1, 60)
@@ -105,7 +137,7 @@ async def editor(ctx):
     while True:
 
         def check(m):
-            return m.content.replace(" ", "").startswith("size=") or m.content.replace(" ", "").startswith("color=") or m.content.replace(" ", "").startswith("texture=")
+            return m.author == ctx.author and (m.content.replace(" ", "").startswith("size=") or m.content.replace(" ", "").startswith("color=") or m.content.replace(" ", "").startswith("texture="))
             
         try:
             responseMessage = await bot.wait_for('message', timeout=120, check=check)
@@ -143,6 +175,6 @@ async def editor(ctx):
 
 @bot.command()
 async def borderGif(ctx):
-    await ctx.send("baited 🎣")
+    await ctx.send("Why are you using this, please use >border")
 
 bot.run("NTU5MDA4NjgwMjY4MjY3NTI4.D3foPw.OTDU0IHH9hSGji3RV7Kq2q8ml34")
