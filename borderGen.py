@@ -67,7 +67,6 @@ def GenerateGif(filepath, color, size):
     for frame in ImageSequence.Iterator(ImageGif):
         draw = ImageDraw.Draw(imageRing)
         draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
-        draw.text((10,100), "baited")
 
         frame = frame.convert('RGBA')
         frame.paste(imageRing, (0, 0), imageRing)
