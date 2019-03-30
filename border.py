@@ -1,6 +1,18 @@
 from PIL import Image, ImageDraw, ImageColor, ImageSequence
 import os, io
 
+def GetMostFrequentColor(filepath):
+    image = Image.open(filepath)
+    width, height = image.size
+    pixels = image.getcolors(width * height)
+
+    most_frequent_pixel = pixels[0]
+
+    for count, color in pixels:
+        if count > most_frequent_pixel[0]:
+            most_frequent_pixel = (count, color)
+    
+    return '#%02x%02x%02x' % most_frequent_pixel[1]
 
 def GenerateBasic(filepath, color, size):
     color = ImageColor.getcolor(color, 'RGBA')
