@@ -3,7 +3,7 @@ from discord.ext import commands
 import asyncio
 from datetime import datetime
 
-bot = commands.Bot(command_prefix='>', description="A bot to add colorful borders to an avatar!")
+bot = commands.Bot(command_prefix='>', description="A bot to add colorful borders to an avatar! Test Server: https://discord.gg/Dy3anFM")
 cogs = ['cogs.border', 'cogs.other']
 
 @bot.event
@@ -22,9 +22,13 @@ async def on_command_error(ctx, error):
 
 async def log():
     while True:
-        guilds = len(list(bot.guilds))
+        guilds = bot.guilds
+        users = 0
+        for guild in guilds:
+            users += len(guild.members)
+
         f = open("logs/guilds.log", "a")
-        f.write("%s %d\n" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), guilds))
+        f.write("%s %d %d\n" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), len(guilds), users))
         await asyncio.sleep(600)
 
 bot.run("NTU5MDA4NjgwMjY4MjY3NTI4.D3foPw.OTDU0IHH9hSGji3RV7Kq2q8ml34")

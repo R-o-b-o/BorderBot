@@ -36,5 +36,19 @@ class Other(commands.Cog):
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.command(name='stats')
+    async def stats(self, ctx):
+        guilds = self.bot.guilds
+        users = 0
+        for guild in guilds:
+            users += len(guild.members)
+
+        await ctx.send("we are in **%d** servers with **%d** users" % (len(guilds), users))
+    
+    @commands.command(name='invite', description="returns an invite link for the bot", aliases=['link'])
+    @commands.cooldown(1, 30)
+    async def invite(self, ctx):
+        await ctx.send("https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=124992")
+
 def setup(bot):
     bot.add_cog(Other(bot))
