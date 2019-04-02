@@ -16,6 +16,9 @@ def GetMostFrequentColor(filepath):
     return '#%02x%02x%02x' % most_frequent_pixel[1]
 
 def GenerateBasic(filepath, color, size):
+    if filepath.endswith(".gif"):
+        return GenerateGif(filepath, color, size)
+    
     color = ImageColor.getcolor(color, 'RGBA')
 
     imageAvatar = Image.open(filepath)
@@ -36,6 +39,9 @@ def GenerateBasic(filepath, color, size):
     return filepath.replace(".webp", ".png")
 
 def GenerateWithTexture(filepath, texturepath, size):
+    if filepath.endswith(".gif"):
+        return GenerateGifWithTexture(filepath, texturepath, size)
+        
     imageAvatar = Image.open(filepath)
     imageRing = Image.open(texturepath)
 

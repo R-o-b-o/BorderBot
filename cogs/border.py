@@ -26,12 +26,11 @@ class Border(commands.Cog):
 
                 if ctx.author.avatar_url.endswith(".gif?size=1024"):
                     filepath = "avatars/" + ctx.author.avatar + '.gif'
-                    open(filepath, 'wb').write(req.content)
-                    filepath = borderGen.GenerateBasic(filepath, ("#%06x" % random.randint(0, 0xFFFFFF)), random.random() / 5 + 0.05)
                 else:
                     filepath = "avatars/" + ctx.author.avatar + '.webp'
-                    open(filepath, 'wb').write(req.content)
-                    borderGen.GenerateGif(filepath, ("#%06x" % random.randint(0, 0xFFFFFF)), random.random() / 5 + 0.05)
+
+                open(filepath, 'wb').write(req.content)
+                filepath = borderGen.GenerateBasic(filepath, ("#%06x" % random.randint(0, 0xFFFFFF)), random.random() / 5 + 0.05)
                 
                 await ctx.send(file=discord.File(filepath))
         else:
@@ -45,12 +44,11 @@ class Border(commands.Cog):
 
         if ctx.author.avatar_url.endswith(".gif?size=1024"):
             filepath = "avatars/" + ctx.author.avatar + '.gif'
-            open(filepath, 'wb').write(req.content)
-            borderGen.GenerateGifWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
         else:
             filepath = "avatars/" + ctx.author.avatar + '.webp'
-            open(filepath, 'wb').write(req.content)
-            filepath = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
+
+        open(filepath, 'wb').write(req.content)
+        filepath = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
 
         await ctx.send(file=discord.File(filepath))
 
@@ -75,10 +73,7 @@ class Border(commands.Cog):
             if color == "default":
                 color = borderGen.GetMostFrequentColor(filepath)
             
-            if ctx.author.avatar_url.endswith(".gif?size=1024"):
-                borderGen.GenerateGif(filepath, color, size)
-            else:
-                filepath = borderGen.GenerateBasic(filepath, color, size)
+            filepath = borderGen.GenerateBasic(filepath, color, size)
             
             processTime = math.trunc((timer() - startTime) * 1000)
             startTime = timer()
@@ -127,15 +122,10 @@ class Border(commands.Cog):
                     req = requests.get(responseMessage.attachments[0].url)
                     texturePath = "textures/" + responseMessage.attachments[0].filename
                     open(texturePath, 'wb').write(req.content)
-                    if ctx.author.avatar_url.endswith(".gif?size=1024"):
-                        borderGen.GenerateGifWithTexture(filepath, texturePath, size)
-                    else:
-                        filepath = borderGen.GenerateWithTexture(filepath, texturePath, size)
+                    
+                    filepath = borderGen.GenerateWithTexture(filepath, texturePath, size)
                 else:
-                    if ctx.author.avatar_url.endswith(".gif?size=1024"):
-                        borderGen.GenerateGif(filepath, color, size)
-                    else:
-                        filepath = borderGen.GenerateBasic(filepath, color, size)
+                    filepath = borderGen.GenerateBasic(filepath, color, size)
 
                 await imageMessage.delete()
                 try:
