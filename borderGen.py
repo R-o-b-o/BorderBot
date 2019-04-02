@@ -3,8 +3,9 @@ import os, io
 
 def GetMostFrequentColor(filepath):
     image = Image.open(filepath)
-    width, height = image.size
-    pixels = image.getcolors(width * height)
+    
+    image = image.convert("RGB")
+    pixels = image.getcolors(image.width ** 2)
 
     most_frequent_pixel = pixels[0]
 
@@ -55,16 +56,40 @@ def GenerateWithTexture(filepath, texturepath, size):
     return filepath.replace(".webp", ".png")
 
 def GenerateGif(filepath, color, size):
-    ImageGif = Image.open(filepath)
-
-    sideLength = ImageGif.width
+    imageGif = Image.open(filepath)
+    
+    sideLength = 512
 
     r = sideLength / 2 * (1-size)
     x = sideLength / 2
-    imageRing = Image.new('RGBA', ImageGif.size, color=color)
+    
+    imageRing = Image.new('RGBA', (512, 512), color=color)
     
     frames = []
-    for frame in ImageSequence.Iterator(ImageGif):
+    for frame in ImageSequence.Iterator(imageGif):
+        frame = frame.resize((512, 512))
+        draw = ImageDraw.Draw(imageRing)
+        draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
+
+        frame = frame.convert('RGBA')
+        frame.paste(imageRing, (0, 0), imageRing)
+        
+        frames.append(frame)
+    frames[0].save(filepath, save_all=True, append_images=frames[1:])
+
+def GenerateGifWithTexture(filepath, texturepath, size):
+    imageGif = Image.open(filepath)
+    imageRing = Image.open(texturepath)
+
+    sideLength = imageGif.width
+
+    r = sideLength / 2 * (1-size)
+    x = sideLength / 2
+    imageRing = imageRing.resize(imageGif.size)
+    imageRing = imageRing.convert("RGBA")
+    
+    frames = []
+    for frame in ImageSequence.Iterator(imageGif):
         draw = ImageDraw.Draw(imageRing)
         draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
 

@@ -8,7 +8,7 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.command(name='ping', description='Find how long it takes for the bot to respond')
+    @commands.command(name='ping', description='Find out how long it takes for the bot to respond')
     async def ping(self, ctx):
         startTime = timer()
         m = await ctx.send(".")
