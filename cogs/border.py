@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
-import requests, math, asyncio, random, os
+import math, asyncio, random, os
 from timeit import default_timer as timer
-import borderGen
+import borderGen, fileHandler
 
 class Border(commands.Cog):
     
@@ -22,14 +22,7 @@ class Border(commands.Cog):
     async def random_command(self, ctx, times : int=1):
         if  (times <= 5):
             for _ in range(0,times):
-                req = requests.get(ctx.author.avatar_url)
-
-                if ctx.author.avatar_url.endswith(".gif?size=1024"):
-                    filepath = "avatars/" + ctx.author.avatar + '.gif'
-                else:
-                    filepath = "avatars/" + ctx.author.avatar + '.webp'
-
-                open(filepath, 'wb').write(req.content)
+                filepath = await fileHandler.downloadAvatar(ctx)
                 filepath = borderGen.GenerateBasic(filepath, ("#%06x" % random.randint(0, 0xFFFFFF)), random.random() / 5 + 0.05)
                 
                 await ctx.send(file=discord.File(filepath))
@@ -39,15 +32,9 @@ class Border(commands.Cog):
     @commands.command(name='randomTexture', description='Generate a border with a random texture')
     @commands.cooldown(5,30)
     async def randomTexture_command(self, ctx):
-        req = requests.get(ctx.author.avatar_url)
         texturepath = "textures/" + random.choice(os.listdir("textures/"))
 
-        if ctx.author.avatar_url.endswith(".gif?size=1024"):
-            filepath = "avatars/" + ctx.author.avatar + '.gif'
-        else:
-            filepath = "avatars/" + ctx.author.avatar + '.webp'
-
-        open(filepath, 'wb').write(req.content)
+        filepath = await fileHandler.downloadAvatar(ctx)
         filepath = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
 
         await ctx.send(file=discord.File(filepath))
@@ -58,14 +45,7 @@ class Border(commands.Cog):
         try:
             startTime = timer()
 
-            req = requests.get(ctx.author.avatar_url)
-
-            if ctx.author.avatar_url.endswith(".gif?size=1024"):
-                filepath = "avatars/" + ctx.author.avatar + '.gif'
-            else:
-                filepath = "avatars/" + ctx.author.avatar + '.webp'
-
-            open(filepath, 'wb').write(req.content)
+            filepath = await fileHandler.downloadAvatar(ctx)
                 
             downloadTime = math.trunc((timer() - startTime) * 1000)
             startTime = timer()
@@ -94,12 +74,7 @@ class Border(commands.Cog):
     @commands.command(name='editor', description='Lets you edit your border in real time!', aliases=['edit'])
     @commands.cooldown(1, 60)
     async def editor(self, ctx):
-        req = requests.get(ctx.author.avatar_url)
-        if ctx.author.avatar_url.endswith(".gif?size=1024"):
-            filepath = "avatars/" + ctx.author.avatar + '.gif'
-        else:
-            filepath = "avatars/" + ctx.author.avatar + '.webp'
-        open(filepath, 'wb').write(req.content)
+        filepath = await fileHandler.downloadAvatar(ctx)
         
         await ctx.send("to change border say: (color = *color*) or (size = *decimal between 0 and 1*) or (texture = *upload texture image*)")
         imageMessage = await ctx.send(file=discord.File(filepath))
