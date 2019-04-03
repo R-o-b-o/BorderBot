@@ -23,9 +23,9 @@ class Border(commands.Cog):
         if  (times <= 5):
             for _ in range(0,times):
                 filepath = await fileHandler.downloadAvatar(ctx)
-                filepath = borderGen.GenerateBasic(filepath, ("#%06x" % random.randint(0, 0xFFFFFF)), random.random() / 5 + 0.05)
+                fileBytes = borderGen.GenerateBasic(filepath, ("#%06x" % random.randint(0, 0xFFFFFF)), random.random() / 5 + 0.05)
                 
-                await ctx.send(file=discord.File(filepath))
+                await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " border.png"))
         else:
             await ctx.send("There is a maximun of 5, *sorry*")
 
@@ -35,9 +35,9 @@ class Border(commands.Cog):
         texturepath = "textures/" + random.choice(os.listdir("textures/"))
 
         filepath = await fileHandler.downloadAvatar(ctx)
-        filepath = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
+        fileBytes = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
 
-        await ctx.send(file=discord.File(filepath))
+        await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " border.png"))
 
     @commands.command(name='border', description='Add a single color border to your avatar', usage="(color) (decimal between 0 - 1) [defaults to size 0.1 and the most occuring color]")
     @commands.cooldown(2, 5)
@@ -53,21 +53,21 @@ class Border(commands.Cog):
             if color == "default":
                 color = borderGen.GetMostFrequentColor(filepath)
             
-            filepath = borderGen.GenerateBasic(filepath, color, size)
+            fileBytes = borderGen.GenerateBasic(filepath, color, size)
             
             processTime = math.trunc((timer() - startTime) * 1000)
             startTime = timer()
                     
-            fileMessage = await ctx.send(file=discord.File(filepath))
+            fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " border.png"))
             uploadTime = math.trunc((timer() - startTime) * 1000)
 
-            webhook = await ctx.channel.create_webhook(name="BorderBot")
             messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
             try:
+                webhook = await ctx.channel.create_webhook(name="BorderBot")
                 await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
                 await webhook.delete()
             except:
-                pass
+                await ctx.send(messageContent)
         except:
             await ctx.send("Invalid command, consider reading the **>help border**")
 

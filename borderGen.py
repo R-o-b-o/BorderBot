@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageColor, ImageSequence
-import os, io
+from io import BytesIO
 
 def GetMostFrequentColor(filepath):
     image = Image.open(filepath)
@@ -31,12 +31,12 @@ def GenerateBasic(filepath, color, size):
     x = sideLength / 2
     
     draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
-    
     imageAvatar.paste(imageRing, (0, 0), imageRing)
-    imageAvatar.save(filepath)
-    os.replace(filepath, filepath.replace(".webp", ".png")) 
 
-    return filepath.replace(".webp", ".png")
+    imageBytes = BytesIO()
+    imageAvatar.save(imageBytes, format="webp")
+    imageBytes.seek(0)
+    return imageBytes
 
 def GenerateWithTexture(filepath, texturepath, size):
     if filepath.endswith(".gif"):
@@ -53,13 +53,12 @@ def GenerateWithTexture(filepath, texturepath, size):
     x = imageAvatar.width / 2
     
     draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
-    
     imageAvatar.paste(imageRing, (0, 0), imageRing)
-    imageAvatar.save(filepath)
-    
-    os.replace(filepath, filepath.replace(".webp", ".png")) 
 
-    return filepath.replace(".webp", ".png")
+    imageBytes = BytesIO()
+    imageAvatar.save(imageBytes, format="webp")
+    imageBytes.seek(0)
+    return imageBytes
 
 def GenerateGif(filepath, color, size):
     imageGif = Image.open(filepath)
