@@ -78,9 +78,16 @@ class Border(commands.Cog):
             processTime = math.trunc((timer() - startTime) * 1000)
             startTime = timer()
                     
-            await ctx.send(file=discord.File(filepath))
+            fileMessage = await ctx.send(file=discord.File(filepath))
             uploadTime = math.trunc((timer() - startTime) * 1000)
-            await ctx.send("that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime))
+
+            webhook = await ctx.channel.create_webhook(name="BorderBot")
+            messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
+            try:
+                await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
+                await webhook.delete()
+            except:
+                pass
         except:
             await ctx.send("Invalid command, consider reading the **>help border**")
 
