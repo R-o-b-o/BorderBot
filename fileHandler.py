@@ -29,3 +29,14 @@ async def downloadTexture(filename, url):
                 await f.write(await r.read())
                 await f.close()
     return filepath
+
+async def saveImage(filepath, fileBytes):
+    fileBytes.seek(0)
+    f = await aiofiles.open(filepath, mode='wb')
+    await f.write(fileBytes.read())
+    await f.close()
+
+async def addFeedback(feedback):
+    f = await aiofiles.open("feedback.txt", "a")
+    await f.write(feedback + "\n")
+    await f.close()

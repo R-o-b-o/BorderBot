@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from timeit import default_timer as timer
 import math, random
+import fileHandler
 
 class Other(commands.Cog):
     
@@ -24,8 +25,7 @@ class Other(commands.Cog):
             else:
                 await ctx.send("😕, Is it in invisible ink?")
         else:
-            f = open("feedback.txt", "a")
-            f.write(ctx.message.content.replace(">feedback", "").replace(">question", "") + "\n")
+            await fileHandler.addFeedback(ctx.message.content.replace(">feedback", "").replace(">question", ""))
             await ctx.send("Thanks, if this is any good I'll give you some garlicoin")
 
     @commands.command(name='faq', description="See the faq")

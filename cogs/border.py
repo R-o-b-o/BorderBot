@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import math, asyncio, random, os
+from io import BytesIO
 from timeit import default_timer as timer
 import borderGen, fileHandler
 
@@ -79,30 +80,38 @@ class Border(commands.Cog):
         filepath = await fileHandler.downloadAvatar(ctx)
         
         await ctx.send("to change border say: (color = *color*) or (size = *decimal between 0 and 1*) or (texture = *upload texture image*)")
+        await ctx.send("say **save** to work on another layer and **close** to end the editor")
         imageMessage = await ctx.send(file=discord.File(filepath))
 
         color = "red"
         size = 0.1
-        timeMessage = await ctx.send("that took **0ms** to proccess")
-        while True:
+        fileBytes = BytesIO() 
+
+        timedOut = False
+        while not timedOut:
 
             def check(m):
-                return m.author == ctx.author and (m.content.replace(" ", "").startswith("size=") or m.content.replace(" ", "").startswith("color=") or m.content.replace(" ", "").startswith("texture="))
+                return m.author == ctx.author and (m.content.replace(" ", "").startswith("size=") or m.content.replace(" ", "").startswith("color=") or m.content.replace(" ", "").startswith("texture=") or m.content=="close" or m.content=="save")
                 
             try:
                 responseMessage = await self.bot.wait_for('message', timeout=120, check=check)
             except asyncio.TimeoutError:
                 await ctx.send("😿 **editor timed out** 😿")
-                break
+                timedOut = True
 
             try:
-                startTime = timer()
-                if responseMessage.content.replace(" ", "").startswith("size="):
-                    size = float(responseMessage.content.replace(" ", "").replace("size=", ""))
-                elif responseMessage.content.replace(" ", "").startswith("color="):
-                    color = responseMessage.content.replace(" ", "").replace("color=", "")
+                responseMessageContent = responseMessage.content.replace(" ", "")
+                if responseMessageContent.startswith("size="):
+                    size = float(responseMessageContent.replace("size=", ""))
+                elif responseMessageContent.startswith("color="):
+                    color = responseMessageContent.replace("color=", "")
+                elif responseMessageContent == "save":
+                    await fileHandler.saveImage(filepath, fileBytes)
+                elif responseMessageContent == "close":
+                    timedOut = True
+                    await ctx.send("😻 **editor closed** 😻😿")
 
-                if responseMessage.content.replace(" ", "").startswith("texture="):
+                if responseMessageContent.startswith("texture="):
                     texturePath = await fileHandler.downloadTexture(responseMessage.attachments[0].filename, responseMessage.attachments[0].url)
                     
                     fileBytes = borderGen.GenerateWithTexture(filepath, texturePath, size)
@@ -115,9 +124,6 @@ class Border(commands.Cog):
                 except:
                     pass
                 
-                processTime = math.trunc((timer() - startTime) * 1000)
-                await timeMessage.edit(content="that took **%dms**" % processTime)
-
                 imageMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
             except:
                 pass
