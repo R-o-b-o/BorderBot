@@ -35,8 +35,3 @@ async def saveImage(filepath, fileBytes):
     f = await aiofiles.open(filepath, mode='wb')
     await f.write(fileBytes.read())
     await f.close()
-
-async def addFeedback(feedback):
-    f = await aiofiles.open("feedback.txt", "a")
-    await f.write(feedback + "\n")
-    await f.close()

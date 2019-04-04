@@ -25,8 +25,12 @@ class Other(commands.Cog):
             else:
                 await ctx.send("😕, Is it in invisible ink?")
         else:
-            await fileHandler.addFeedback(ctx.message.content.replace(">feedback", "").replace(">question", ""))
+            feedback = ctx.message.content.replace(">feedback", "").replace(">question", "")
+            
             await ctx.send("Thanks, if this is any good I'll give you some garlicoin")
+            embed=discord.Embed(description=feedback, color=random.randint(0, 0xFFFFFF))
+            embed.set_footer(text=f'From {ctx.author.name}')
+            await self.bot.get_channel(560175720052293663).send(embed=embed)
 
     @commands.command(name='faq', description="See the faq")
     @commands.cooldown(5,600)
