@@ -83,7 +83,8 @@ class Border(commands.Cog):
         while not timedOut:
 
             def check(m):
-                return m.author == ctx.author and (m.content.replace(" ", "").startswith("size=") or m.content.replace(" ", "").startswith("color=") or m.content.replace(" ", "").startswith("texture=") or m.content=="close" or m.content=="save")
+                message = m.content.replace(" ", "").lower()
+                return m.author == ctx.author and (message.startswith("size=") or message.startswith("color=") or message.startswith("texture=") or message=="close" or message=="save")
                 
             try:
                 responseMessage = await self.bot.wait_for('message', timeout=120, check=check)
@@ -92,7 +93,7 @@ class Border(commands.Cog):
                 timedOut = True
 
             try:
-                responseMessageContent = responseMessage.content.replace(" ", "")
+                responseMessageContent = responseMessage.content.replace(" ", "").lower()
                 if responseMessageContent.startswith("size="):
                     size = float(responseMessageContent.replace("size=", ""))
                 elif responseMessageContent.startswith("color="):
@@ -101,7 +102,7 @@ class Border(commands.Cog):
                     await fileHandler.saveImage(filepath, fileBytes)
                 elif responseMessageContent == "close":
                     timedOut = True
-                    await ctx.send("😻 **editor closed** 😻😿")
+                    await ctx.send("😻 **editor closed** 😻")
 
                 if responseMessageContent.startswith("texture="):
                     texturePath = await fileHandler.downloadTexture(responseMessage.attachments[0].filename, responseMessage.attachments[0].url)
