@@ -48,7 +48,7 @@ class Other(commands.Cog):
     @commands.command(name='invite', description="returns an invite link for the bot", aliases=['link'])
     @commands.cooldown(1, 30)
     async def invite(self, ctx):
-        await ctx.send("https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=124992")
+        await ctx.send("https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=536995904")
 
 def setup(bot):
     bot.add_cog(Other(bot))

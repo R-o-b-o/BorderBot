@@ -23,9 +23,11 @@ class Border(commands.Cog):
         if  (times <= 5):
             for _ in range(0,times):
                 filepath = await fileHandler.downloadAvatar(ctx)
-                fileBytes = borderGen.GenerateBasic(filepath, ("#%06x" % random.randint(0, 0xFFFFFF)), random.random() / 5 + 0.05)
+                color = "#%06x" % random.randint(0, 0xFFFFFF)
+                size = round(random.random() / 5 + 0.05, 4)
+                fileBytes = borderGen.GenerateBasic(filepath, color, size)
                 
-                await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " border.png"))
+                await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
         else:
             await ctx.send("There is a maximun of 5, *sorry*")
 
@@ -37,7 +39,7 @@ class Border(commands.Cog):
         filepath = await fileHandler.downloadAvatar(ctx)
         fileBytes = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
 
-        await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " border.png"))
+        await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " borderTextured.png"))
 
     @commands.command(name='border', description='Add a single color border to your avatar', usage="(color) (decimal between 0 - 1) [defaults to size 0.1 and the most occuring color]")
     @commands.cooldown(2, 5)
@@ -58,7 +60,7 @@ class Border(commands.Cog):
             processTime = math.trunc((timer() - startTime) * 1000)
             startTime = timer()
                     
-            fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " border.png"))
+            fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
             uploadTime = math.trunc((timer() - startTime) * 1000)
 
             messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
@@ -101,13 +103,11 @@ class Border(commands.Cog):
                     color = responseMessage.content.replace(" ", "").replace("color=", "")
 
                 if responseMessage.content.replace(" ", "").startswith("texture="):
-                    req = requests.get(responseMessage.attachments[0].url)
-                    texturePath = "textures/" + responseMessage.attachments[0].filename
-                    open(texturePath, 'wb').write(req.content)
+                    texturePath = await fileHandler.downloadTexture(responseMessage.attachments[0].filename, responseMessage.attachments[0].url)
                     
-                    filepath = borderGen.GenerateWithTexture(filepath, texturePath, size)
+                    fileBytes = borderGen.GenerateWithTexture(filepath, texturePath, size)
                 else:
-                    filepath = borderGen.GenerateBasic(filepath, color, size)
+                    fileBytes = borderGen.GenerateBasic(filepath, color, size)
 
                 await imageMessage.delete()
                 try:
@@ -118,7 +118,7 @@ class Border(commands.Cog):
                 processTime = math.trunc((timer() - startTime) * 1000)
                 await timeMessage.edit(content="that took **%dms**" % processTime)
 
-                imageMessage = await ctx.send(file=discord.File(filepath.replace(".webp", ".png")))
+                imageMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
             except:
                 pass
 
