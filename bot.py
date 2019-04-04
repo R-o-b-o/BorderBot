@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 from datetime import datetime
+import fileHandler
 
 bot = commands.Bot(command_prefix='>', description="A bot to add colorful borders to an avatar! Test Server: https://discord.gg/Dy3anFM")
 cogs = ['cogs.avatar', 'cogs.border', 'cogs.other']
@@ -18,7 +19,12 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
+        await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
+
+@bot.event
+async def on_member_update(before, after):
+    if before.avatar != after.avatar:
+        await fileHandler.downloadAvatar(before)
 
 async def log():
     while True:

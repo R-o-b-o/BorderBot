@@ -15,7 +15,7 @@ class Border(commands.Cog):
     async def random_command(self, ctx, times : int=1):
         if  (times <= 5):
             for _ in range(0,times):
-                filepath = await fileHandler.downloadAvatar(ctx)
+                filepath = await fileHandler.downloadAvatar(ctx.author)
                 color = "#%06x" % random.randint(0, 0xFFFFFF)
                 size = round(random.random() / 5 + 0.05, 4)
                 fileBytes = borderGen.GenerateBasic(filepath, color, size)
@@ -29,7 +29,7 @@ class Border(commands.Cog):
     async def randomTexture_command(self, ctx):
         texturepath = "textures/" + random.choice(os.listdir("textures/"))
 
-        filepath = await fileHandler.downloadAvatar(ctx)
+        filepath = await fileHandler.downloadAvatar(ctx.author)
         fileBytes = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
 
         await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " borderTextured.png"))
@@ -40,7 +40,7 @@ class Border(commands.Cog):
         try:
             startTime = timer()
 
-            filepath = await fileHandler.downloadAvatar(ctx)
+            filepath = await fileHandler.downloadAvatar(ctx.author)
                 
             downloadTime = math.trunc((timer() - startTime) * 1000)
             startTime = timer()
@@ -69,7 +69,7 @@ class Border(commands.Cog):
     @commands.command(name='editor', description='Lets you edit your border in real time!', aliases=['edit'])
     @commands.cooldown(1, 60)
     async def editor(self, ctx):
-        filepath = await fileHandler.downloadAvatar(ctx)
+        filepath = await fileHandler.downloadAvatar(ctx.author)
         
         await ctx.send("to change border say: (color = *color*) or (size = *decimal between 0 and 1*) or (texture = *upload texture image*)")
         await ctx.send("say **save** to work on another layer and **close** to end the editor")
