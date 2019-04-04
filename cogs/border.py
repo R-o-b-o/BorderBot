@@ -10,14 +10,6 @@ class Border(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='avatar', description='Gets you a link to someones avatar', aliases=['pfp'], usage="@user")
-    async def avatar(self, ctx):
-        try:
-            member = ctx.message.mentions[0]
-        except:
-            member = ctx.author
-        await ctx.send(member.avatar_url)
-
     @commands.command(name='random', description='Generate a border with random parameters', usage="number of images to generate (max 5)")
     @commands.cooldown(5,30)
     async def random_command(self, ctx, times : int=1):

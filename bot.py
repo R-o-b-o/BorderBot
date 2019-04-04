@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime
 
 bot = commands.Bot(command_prefix='>', description="A bot to add colorful borders to an avatar! Test Server: https://discord.gg/Dy3anFM")
-cogs = ['cogs.border', 'cogs.other']
+cogs = ['cogs.avatar', 'cogs.border', 'cogs.other']
 
 @bot.event
 async def on_ready():
