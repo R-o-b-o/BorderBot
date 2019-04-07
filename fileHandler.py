@@ -35,3 +35,14 @@ async def saveImage(filepath, fileBytes):
     f = await aiofiles.open(filepath, mode='wb')
     await f.write(fileBytes.read())
     await f.close()
+
+async def SetupLogging(filepath):
+    if not(os.path.exists(filepath)):
+        f = await aiofiles.open(filepath, mode='w')
+        await f.write("0000-00-00 00:00:00 10 100")
+
+async def CreateFolders():
+    filepaths = ["avatars", "textures", "logs"]
+    for filepath in filepaths:
+        if not(os.path.exists(filepath)):
+                os.mkdir(filepath)

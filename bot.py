@@ -13,6 +13,8 @@ async def on_ready():
     for cog in cogs:
         bot.load_extension(cog)
     await bot.change_presence(activity=discord.Game(">help"))
+    await fileHandler.CreateFolders()
+    await fileHandler.SetupLogging("logs/guilds.log")
     bot.loop.create_task(log())
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
@@ -34,7 +36,7 @@ async def log():
             users += len(guild.members)
 
         f = open("logs/guilds.log", "a")
-        f.write("%s %d %d\n" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), len(guilds), users))
+        f.write("\n%s %d %d" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), len(guilds), users))
 
         with open('logs/guilds.log') as f:
             lastLine = f.readlines()
