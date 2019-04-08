@@ -120,6 +120,7 @@ class Border(commands.Cog):
                 imageMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
             except:
                 pass
+        os.remove(filepath)
 
 
 def setup(bot):
