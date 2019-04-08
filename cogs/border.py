@@ -98,15 +98,17 @@ class Border(commands.Cog):
                     size = float(responseMessageContent.replace("size=", ""))
                 elif responseMessageContent.startswith("color="):
                     color = responseMessageContent.replace("color=", "")
+                    textured = False
                 elif responseMessageContent == "save":
                     await fileHandler.saveImage(filepath, fileBytes)
                 elif responseMessageContent == "close":
                     timedOut = True
                     await ctx.send("😻 **editor closed** 😻")
-
-                if responseMessageContent.startswith("texture="):
+                elif responseMessageContent.startswith("texture="):
                     texturePath = await fileHandler.downloadTexture(responseMessage.attachments[0].filename, responseMessage.attachments[0].url)
+                    textured = True
                     
+                if textured:
                     fileBytes = borderGen.GenerateWithTexture(filepath, texturePath, size)
                 else:
                     fileBytes = borderGen.GenerateBasic(filepath, color, size)
@@ -120,6 +122,7 @@ class Border(commands.Cog):
                 imageMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
             except:
                 pass
+        os.remove(filepath)
 
 
 def setup(bot):
