@@ -63,16 +63,16 @@ def GenerateWithTexture(filepath, texturepath, size):
 def GenerateGif(filepath, color, size):
     imageGif = Image.open(filepath)
     
-    sideLength = 512
+    sideLength = imageGif.width
 
     r = sideLength / 2 * (1-size)
     x = sideLength / 2
     
-    imageRing = Image.new('RGBA', (512, 512), color=color)
+    imageRing = Image.new('RGBA', imageGif.size, color=color)
     
     frames = []
     for frame in ImageSequence.Iterator(imageGif):
-        frame = frame.resize((512, 512))
+        
         draw = ImageDraw.Draw(imageRing)
         draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
 
