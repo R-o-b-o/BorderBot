@@ -32,7 +32,7 @@ async def on_member_update(before, after):
 @bot.event
 async def on_command_completion(ctx):
     f = open("logs/commands.log", "a")
-    f.write("\n%s %d" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ctx.command.name))
+    f.write("\n%s %s" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ctx.command.name))
 
 async def log():
     while True:
