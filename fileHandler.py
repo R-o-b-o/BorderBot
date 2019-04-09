@@ -49,6 +49,6 @@ async def CreateFolders():
                 os.mkdir(filepath)
 
 async def GetNumberOfCommands():
-    with open('logs/commands.log') as f:
-            lines = f.readlines()
+    async with aiofiles.open('logs/commands.log', mode='r') as f:
+        lines = await f.readlines()
     return len(lines)
