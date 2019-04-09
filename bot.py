@@ -14,6 +14,7 @@ async def on_ready():
         bot.load_extension(cog)
     await bot.change_presence(activity=discord.Game(">help"))
     await fileHandler.CreateFolders()
+    await fileHandler.SetupLogging("logs/commands.log")
     await fileHandler.SetupLogging("logs/guilds.log")
     bot.loop.create_task(log())
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
@@ -27,6 +28,11 @@ async def on_command_error(ctx, error):
 async def on_member_update(before, after):
     if before.avatar != after.avatar:
         await fileHandler.downloadAvatar(before)
+
+@bot.event
+async def on_command_completion(ctx):
+    f = open("logs/commands.log", "a")
+    f.write("\n%s %d" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ctx.command.name))
 
 async def log():
     while True:
