@@ -50,7 +50,7 @@ async def log():
         oldGuilds = lastLine.split()[2]
         
         if len(guilds) > int(oldGuilds):
-            await bot.get_user(344270500987404288).send("BorderBot has joined %d server(s)! ㊗" % (len(guilds) - int(oldGuilds)))
+            await bot.get_user(344270500987404288).send("BorderBot has joined %d new server(s)! ㊗" % (len(guilds) - int(oldGuilds)))
 
         await asyncio.sleep(600)
 
