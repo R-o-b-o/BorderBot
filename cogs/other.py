@@ -47,7 +47,7 @@ class Other(commands.Cog):
         for guild in guilds:
             users += len(guild.members)
 
-        with open('logs/commands.log') as f:
+        with open('../logs/commands.log') as f:
             lines = f.readlines()
 
         await ctx.send("we are in **%d** servers with **%d** users" % (len(lines)))
