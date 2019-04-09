@@ -47,7 +47,11 @@ class Other(commands.Cog):
         for guild in guilds:
             users += len(guild.members)
 
-        await ctx.send("we are in **%d** servers with **%d** users" % (len(guilds), users))
+        with open('logs/commands.log') as f:
+            lines = f.readlines()
+
+        await ctx.send("we are in **%d** servers with **%d** users" % (len(lines)))
+        await ctx.send("**%d** commands have been made" % (users))
     
     @commands.command(name='invite', description="returns an invite link for the bot", aliases=['link'])
     @commands.cooldown(1, 30)
