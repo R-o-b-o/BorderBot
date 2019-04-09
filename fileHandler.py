@@ -47,3 +47,8 @@ async def CreateFolders():
     for filepath in filepaths:
         if not(os.path.exists(filepath)):
                 os.mkdir(filepath)
+
+async def GetNumberOfCommands():
+    with open('logs/commands.log') as f:
+            lines = f.readlines()
+    return len(lines)
