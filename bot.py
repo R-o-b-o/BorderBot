@@ -10,9 +10,10 @@ cogs = ['cogs.avatar', 'cogs.border', 'cogs.other']
 @bot.event
 async def on_ready():
     #bot.remove_command('help')
+    await bot.change_presence(activity=discord.Game(">help"))
     for cog in cogs:
         bot.load_extension(cog)
-    await bot.change_presence(activity=discord.Game(">help"))
+    
     await fileHandler.CreateFolders()
     await fileHandler.SetupLogging("logs/commands.log")
     await fileHandler.SetupLogging("logs/guilds.log")
