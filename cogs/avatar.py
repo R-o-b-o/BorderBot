@@ -23,7 +23,8 @@ class Avatar(commands.Cog):
         for file in os.listdir(filepath):
             files.append(discord.File(filepath + file))
         
-        await ctx.author.send(files=files)
+        for i in range(0, len(files), 10):
+            await ctx.author.send(files=files[i:i+10])
     
     @commands.command(name='randomAvatar', description='Receive a random avatar')
     @commands.cooldown(5,30)
