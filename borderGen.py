@@ -44,13 +44,12 @@ def GenerateSquare(filepath, color, size):
 
     imageAvatar = Image.open(filepath)
 
-    x = imageAvatar.width * math.sqrt(size)
-    y = imageAvatar.height * math.sqrt(size)
+    x = imageAvatar.width * math.sqrt(1-size)
 
     imageSquare = Image.new('RGBA', imageAvatar.size, color=color)
     draw = ImageDraw.Draw(imageSquare)
     
-    draw.rectangle((x, y, imageAvatar.width - x, imageAvatar.height - y), fill=(0,0,0,0))
+    draw.rectangle((x, x, imageAvatar.width - x, imageAvatar.height - x), fill=(0,0,0,0))
     imageAvatar.paste(imageSquare, (0, 0), imageSquare)
 
     imageBytes = BytesIO()

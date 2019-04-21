@@ -77,7 +77,7 @@ class Border(commands.Cog):
         if color == "default":
             color = borderGen.GetMostFrequentColor(filepath)
             
-        fileBytes = borderGen.GenerateBasic(filepath, color, size)
+        fileBytes = borderGen.GenerateSquare(filepath, color, size)
             
         processTime = math.trunc((timer() - startTime) * 1000)
         startTime = timer()
