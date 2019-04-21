@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageColor, ImageSequence
 from io import BytesIO
+import math
 
 def GetMostFrequentColor(filepath):
     image = Image.open(filepath)
@@ -32,6 +33,25 @@ def GenerateBasic(filepath, color, size):
     
     draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
     imageAvatar.paste(imageRing, (0, 0), imageRing)
+
+    imageBytes = BytesIO()
+    imageAvatar.save(imageBytes, format="webp")
+    imageBytes.seek(0)
+    return imageBytes
+
+def GenerateSquare(filepath, color, size):
+    color = ImageColor.getcolor(color, 'RGBA')
+
+    imageAvatar = Image.open(filepath)
+
+    x = imageAvatar.width * math.sqrt(size)
+    y = imageAvatar.height * math.sqrt(size)
+
+    imageSquare = Image.new('RGBA', imageAvatar.size, color=color)
+    draw = ImageDraw.Draw(imageSquare)
+    
+    draw.rectangle((x, y, imageAvatar.width - x, imageAvatar.height - y), fill=(0,0,0,0))
+    imageAvatar.paste(imageSquare, (0, 0), imageSquare)
 
     imageBytes = BytesIO()
     imageAvatar.save(imageBytes, format="webp")

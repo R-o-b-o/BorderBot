@@ -66,6 +66,33 @@ class Border(commands.Cog):
         except:
             await ctx.send("Invalid command, consider reading the **>help border**")
 
+    @commands.command(name='borderSquare', hidden=True)
+    async def borderSquare(self, ctx, color="default", size : float=0.1):
+        startTime = timer()
+        filepath = await fileHandler.downloadAvatar(ctx.author)
+                
+        downloadTime = math.trunc((timer() - startTime) * 1000)
+        startTime = timer()
+                    
+        if color == "default":
+            color = borderGen.GetMostFrequentColor(filepath)
+            
+        fileBytes = borderGen.GenerateBasic(filepath, color, size)
+            
+        processTime = math.trunc((timer() - startTime) * 1000)
+        startTime = timer()
+                    
+        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
+        uploadTime = math.trunc((timer() - startTime) * 1000)
+
+        messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
+        try:
+            webhook = await ctx.channel.create_webhook(name="BorderBot")
+            await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
+            await webhook.delete()
+        except:
+            await ctx.send(messageContent)
+
     @commands.command(name='editor', description='Lets you edit your border in real time!', aliases=['edit'])
     @commands.cooldown(1, 60)
     async def editor(self, ctx):
