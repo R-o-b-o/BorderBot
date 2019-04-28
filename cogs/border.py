@@ -52,40 +52,12 @@ class Border(commands.Cog):
             
             processTime = math.trunc((timer() - startTime) * 1000)
             startTime = timer()
-                    
-            fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
-            uploadTime = math.trunc((timer() - startTime) * 1000)
-
-            messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-            try:
-                webhook = await ctx.channel.create_webhook(name="BorderBot")
-                await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
-                await webhook.delete()
-            except:
-                await ctx.send(messageContent)
-        except:
-            await ctx.send("Invalid command, consider reading the **>help border**")
-    
-    @commands.command(name='testBorder', hidden=True)
-    async def testborder_command(self, ctx, color="default", size : float=0.1):
-        member = ctx.message.mentions[0]
-        try:
-            startTime = timer()
-
-            filepath = await fileHandler.downloadAvatar(member)
+            
+            extension = ".png"
+            if filepath.endswith(".gif"):
+                extension = "gif"
                 
-            downloadTime = math.trunc((timer() - startTime) * 1000)
-            startTime = timer()
-                    
-            if color == "default":
-                color = borderGen.GetMostFrequentColor(filepath)
-            
-            fileBytes = borderGen.GenerateBasic(filepath, color, size)
-            
-            processTime = math.trunc((timer() - startTime) * 1000)
-            startTime = timer()
-                    
-            fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
+            fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + extension))
             uploadTime = math.trunc((timer() - startTime) * 1000)
 
             messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
