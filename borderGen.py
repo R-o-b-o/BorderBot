@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageColor, ImageSequence
 from io import BytesIO
+
 import math
 
 def GetMostFrequentColor(filepath):
@@ -100,7 +101,8 @@ def GenerateGif(filepath, color, size):
         
         frames.append(frame)
     imageBytes = BytesIO()
-    frames[0].save(imageBytes, save_all=True, append_images=frames[1:])
+    frames[0].save(imageBytes, format="gif", save_all=True, append_images=frames[1:])
+    imageBytes.seek(0)
     return imageBytes
 
 def GenerateGifWithTexture(filepath, texturepath, size):
