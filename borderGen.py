@@ -99,7 +99,9 @@ def GenerateGif(filepath, color, size):
         frame.paste(imageRing, (0, 0), imageRing)
         
         frames.append(frame)
-    frames[0].save(filepath, save_all=True, append_images=frames[1:])
+    imageBytes = BytesIO()
+    frames[0].save(imageBytes, save_all=True, append_images=frames[1:])
+    return imageBytes
 
 def GenerateGifWithTexture(filepath, texturepath, size):
     imageGif = Image.open(filepath)
