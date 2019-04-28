@@ -27,7 +27,7 @@ class Avatar(commands.Cog):
             await ctx.author.send(files=files[i:i+10])
     
     @commands.command(name='randomAvatar', description='Receive a random avatar')
-    @commands.cooldown(5,30)
+    #@commands.cooldown(5,30)
     async def randomAvatar(self, ctx):
         filepaths = []
         for path, _, files in os.walk("avatars/"):
