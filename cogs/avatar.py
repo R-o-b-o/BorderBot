@@ -13,7 +13,7 @@ class Avatar(commands.Cog):
             member = ctx.message.mentions[0]
         except:
             member = ctx.author
-        await ctx.send(member.avatar_url)
+        await ctx.send(member.avatar_url_as(format='png', size=1024))
     
     @commands.command(name='history', description='See a history of your avatar', aliases=['avatars'])
     @commands.cooldown(1,300)

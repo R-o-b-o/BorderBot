@@ -15,8 +15,6 @@ async def on_ready():
         bot.load_extension(cog)
     
     await fileHandler.CreateFolders()
-    await fileHandler.SetupLogging("logs/commands.log")
-    await fileHandler.SetupLogging("logs/guilds.log")
     bot.loop.create_task(log())
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
@@ -32,8 +30,12 @@ async def on_member_update(before, after):
 
 @bot.event
 async def on_command_completion(ctx):
-    f = open("logs/commands.log", "a")
+    f = open("logs/commands.log", "a+")
     f.write("\n%s %s" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ctx.command.name))
+
+@bot.event
+async def on_guild_join(ctx):
+    await bot.get_user(344270500987404288).send("BorderBot has joined a new server! ㊗")
 
 async def log():
     while True:
@@ -42,16 +44,8 @@ async def log():
         for guild in guilds:
             users += len(guild.members)
 
-        f = open("logs/guilds.log", "a")
+        f = open("logs/guilds.log", "a+")
         f.write("\n%s %d %d" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), len(guilds), users))
-
-        with open('logs/guilds.log') as f:
-            lastLine = f.readlines()
-        lastLine = lastLine[-2]
-        oldGuilds = lastLine.split()[2]
-        
-        if len(guilds) > int(oldGuilds):
-            await bot.get_user(344270500987404288).send("BorderBot has joined %d new server(s)! ㊗" % (len(guilds) - int(oldGuilds)))
 
         await asyncio.sleep(600)
 

@@ -14,6 +14,8 @@ class Border(commands.Cog):
     @commands.cooldown(5,30)
     async def random_command(self, ctx, times : int=1):
         if  (times <= 5):
+            startTime = timer()
+            
             for _ in range(0,times):
                 filepath = await fileHandler.downloadAvatar(ctx.author)
                 color = "#%06x" % random.randint(0, 0xFFFFFF)
@@ -21,6 +23,7 @@ class Border(commands.Cog):
                 fileBytes = borderGen.GenerateBasic(filepath, color, size)
                 
                 await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
+            await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms")
         else:
             await ctx.send("There is a maximun of 5, *sorry*")
 

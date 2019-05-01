@@ -6,7 +6,7 @@ async def downloadAvatar(author):
     filepath = "avatars/" + str(author.id) 
     if not os.path.exists(filepath):
         os.makedirs(filepath)
-    url = str(author.avatar_url)
+    url = str(author.avatar_url_as(format='webp', size=1024))
 
     if url.endswith(".gif?size=1024"):
         filepath += "/" + author.avatar + ".gif"
@@ -36,11 +36,6 @@ async def saveImage(filepath, fileBytes):
     f = await aiofiles.open(filepath, mode='wb')
     await f.write(fileBytes.read())
     await f.close()
-
-async def SetupLogging(filepath):
-    if not(os.path.exists(filepath)):
-        f = await aiofiles.open(filepath, mode='w')
-        await f.write("0000-00-00 00:00:00 10 100")
 
 async def CreateFolders():
     filepaths = ["avatars", "textures", "logs"]

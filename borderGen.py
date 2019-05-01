@@ -35,6 +35,11 @@ def GenerateBasic(filepath, color, size):
     draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
     imageAvatar.paste(imageRing, (0, 0), imageRing)
 
+    mask = Image.new('L', imageAvatar.size, 0)
+    draw = ImageDraw.Draw(mask) 
+    draw.ellipse((0, 0) + imageAvatar.size, fill=255)
+    imageAvatar.putalpha(mask)
+    
     imageBytes = BytesIO()
     imageAvatar.save(imageBytes, format="webp")
     imageBytes.seek(0)

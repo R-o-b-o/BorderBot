@@ -49,7 +49,7 @@ class Other(commands.Cog):
 
         commands = await fileHandler.GetNumberOfCommands()
 
-        await ctx.send("we are in **%d** servers with **%d** users" % (len(guilds), users))
+        await ctx.send("I am in **%d** servers with **%d** users" % (len(guilds), users))
         await ctx.send("**%d** commands have been made" % (commands))
     
     @commands.command(name='invite', description="returns an invite link for the bot", aliases=['link'])
