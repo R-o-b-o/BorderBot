@@ -9,15 +9,21 @@ class Avatar(commands.Cog):
 
     @commands.command(name='avatar', description='Gets you a link to someones avatar', aliases=['pfp'], usage="@user")
     async def avatar(self, ctx):
-        try:
+        if len(ctx.message.mentions) > 0:
             member = ctx.message.mentions[0]
-        except:
+        else:
             member = ctx.author
-        await ctx.send(member.avatar_url_as(format='png', size=1024))
+
+        if str(member.avatar_url).endswith(".gif?size=1024"):
+            await ctx.send(member.avatar_url)
+        else:
+            await ctx.send(member.avatar_url_as(format='png', size=1024))
     
     @commands.command(name='history', description='See a history of your avatar', aliases=['avatars'])
     @commands.cooldown(1,300)
     async def history(self, ctx):
+        if isinstance(ctx.channel, discord.abc.GuildChannel):
+            await ctx.send("Dmed previous avatars 🖼!")
         files = []
         filepath = "avatars/" + str(ctx.author.id) + "/"
         for file in os.listdir(filepath):

@@ -58,7 +58,7 @@ class Border(commands.Cog):
             
             extension = ".png"
             if filepath.endswith(".gif"):
-                extension = "gif"
+                extension = ".gif"
                 
             fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + extension))
             uploadTime = math.trunc((timer() - startTime) * 1000)

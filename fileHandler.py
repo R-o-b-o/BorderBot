@@ -6,7 +6,7 @@ async def downloadAvatar(author):
     filepath = "avatars/" + str(author.id) 
     if not os.path.exists(filepath):
         os.makedirs(filepath)
-    url = str(author.avatar_url_as(format='webp', size=1024))
+    url = str(author.avatar_url)
 
     if url.endswith(".gif?size=1024"):
         filepath += "/" + author.avatar + ".gif"
