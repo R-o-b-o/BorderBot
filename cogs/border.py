@@ -10,7 +10,7 @@ class Border(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='random', description='Generate a border with random parameters', usage="number of images to generate (max 5)")
+    @commands.command(name='random', description='Generate a border with random parameters', usage="number of images to generate (max 5)", aliases=['randomBorder'])
     @commands.cooldown(5,30)
     async def random_command(self, ctx, times : int=1):
         if  (times <= 5):
@@ -41,35 +41,36 @@ class Border(commands.Cog):
     @commands.cooldown(2, 5)
     async def border_command(self, ctx, color="default", size : float=0.1):
         try:
-            startTime = timer()
+            async with ctx.channel.typing():
+                startTime = timer()
 
-            filepath = await fileHandler.downloadAvatar(ctx.author)
-                
-            downloadTime = math.trunc((timer() - startTime) * 1000)
-            startTime = timer()
+                filepath = await fileHandler.downloadAvatar(ctx.author)
                     
-            if color == "default":
-                color = borderGen.GetMostFrequentColor(filepath)
-            
-            fileBytes = borderGen.GenerateBasic(filepath, color, size)
-            
-            processTime = math.trunc((timer() - startTime) * 1000)
-            startTime = timer()
-            
-            extension = ".png"
-            if filepath.endswith(".gif"):
-                extension = ".gif"
+                downloadTime = math.trunc((timer() - startTime) * 1000)
+                startTime = timer()
+                        
+                if color == "default":
+                    color = borderGen.GetMostFrequentColor(filepath)
                 
-            fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + extension))
-            uploadTime = math.trunc((timer() - startTime) * 1000)
+                fileBytes = borderGen.GenerateBasic(filepath, color, size)
+                
+                processTime = math.trunc((timer() - startTime) * 1000)
+                startTime = timer()
+                
+                extension = ".png"
+                if filepath.endswith(".gif"):
+                    extension = ".gif"
+                    
+                fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + extension))
+                uploadTime = math.trunc((timer() - startTime) * 1000)
 
-            messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-            try:
-                webhook = await ctx.channel.create_webhook(name="BorderBot")
-                await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
-                await webhook.delete()
-            except:
-                await ctx.send(messageContent)
+                messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
+                try:
+                    webhook = await ctx.channel.create_webhook(name="BorderBot")
+                    await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
+                    await webhook.delete()
+                except:
+                    await ctx.send(messageContent)
         except:
             await ctx.send("Invalid command, consider reading the **>help border**")
 
