@@ -11,11 +11,14 @@ cogs = ['cogs.avatar', 'cogs.border', 'cogs.other']
 async def on_ready():
     #bot.remove_command('help')
     await bot.change_presence(activity=discord.Game(">help"))
-    for cog in cogs:
-        bot.load_extension(cog)
-    
-    await fileHandler.CreateFolders()
-    bot.loop.create_task(log())
+    try:
+        for cog in cogs:
+            bot.load_extension(cog)
+        
+        await fileHandler.CreateFolders()
+        bot.loop.create_task(log())
+    except commands.errors.ExtensionAlreadyLoaded:
+        print("Tried to reload extension")
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
 @bot.event
@@ -24,7 +27,7 @@ async def on_command_error(ctx, error):
         await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
 
 @bot.event
-async def on_member_update(before, after):
+async def on_user_update(before, after):
     if before.avatar != after.avatar:
         await fileHandler.downloadAvatar(before)
 

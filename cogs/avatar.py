@@ -20,7 +20,7 @@ class Avatar(commands.Cog):
             await ctx.send(member.avatar_url_as(format='png', size=1024))
     
     @commands.command(name='history', description='See a history of your avatar', aliases=['avatars'])
-    @commands.cooldown(1,300)
+    @commands.cooldown(2,300)
     async def history(self, ctx):
         if isinstance(ctx.channel, discord.abc.GuildChannel):
             await ctx.send("Dmed previous avatars 🖼!")
@@ -33,7 +33,7 @@ class Avatar(commands.Cog):
             await ctx.author.send(files=files[i:i+10])
     
     @commands.command(name='randomAvatar', description='Receive a random avatar')
-    #@commands.cooldown(5,30)
+    @commands.cooldown(10,30)
     async def randomAvatar(self, ctx):
         filepaths = []
         for path, _, files in os.walk("avatars/"):
