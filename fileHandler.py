@@ -13,6 +13,9 @@ async def downloadAvatar(author):
     else:
         filepath += "/" + author.avatar + ".webp"
     
+    if os.path.isfile(filepath):
+        return filepath
+
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as r:
             if r.status == 200:
