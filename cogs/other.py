@@ -18,15 +18,13 @@ class Other(commands.Cog):
 
     @commands.command(name='feedback', description="Give feedback to improve the bot's functionality", aliases=['question'], usage="Feedback-Goes-Here")
     @commands.cooldown(5,600)
-    async def feedback(self, ctx):
-        if ctx.message.content.replace(">feedback", "") == "" or ctx.message.content.replace(">question", "") == "":
+    async def feedback(self, ctx, feedback=""):
+        if feedback == "":
             if random.randint(0, 2) == 0:
                 await ctx.send("😡, It's blank you NONCE!")
             else:
                 await ctx.send("😕, Is it in invisible ink?")
         else:
-            feedback = ctx.message.content.replace(">feedback", "").replace(">question", "")
-            
             await ctx.send("Thanks, if this is any good I'll give you some garlicoin")
             embed=discord.Embed(description=feedback, color=random.randint(0, 0xFFFFFF))
             embed.set_footer(text=f'From {ctx.author.name}')

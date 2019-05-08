@@ -14,10 +14,26 @@ class Avatar(commands.Cog):
         else:
             member = ctx.author
 
+        url = member.avatar_url_as(format='png', size=1024)
         if str(member.avatar_url).endswith(".gif?size=1024"):
-            await ctx.send(member.avatar_url)
+            url = member.avatar_url
+        
+        if random.randint(0, 5) == 0:
+            embed=discord.Embed(description=f"[Avatar Link]({url})", color=0xAD1457)
+            embed.set_thumbnail(url=url)
+            embed.set_image(url=url)
+            embed.set_author(name=f"{member.name}", icon_url=url)
+            embed.set_footer(text=".", icon_url=url)
+
+            webhook = await ctx.channel.create_webhook(name="BorderBot")
+            await webhook.send(embed=embed, avatar_url=url)
+            await webhook.delete()
         else:
-            await ctx.send(member.avatar_url_as(format='png', size=1024))
+            embed=discord.Embed(title=f"{member.name}", description=f"[Avatar Link]({url})", color=0xAD1457)
+            embed.set_thumbnail(url=url)
+            embed.set_image(url=url)
+        
+            await ctx.send(embed=embed)
     
     @commands.command(name='history', description='See a history of your avatar', aliases=['avatars'])
     @commands.cooldown(2,300)
