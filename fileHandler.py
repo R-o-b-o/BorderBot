@@ -11,7 +11,7 @@ async def downloadAvatar(author):
         os.makedirs(filepath)
 
     url = author.avatar_url_as(format=imageFormat, size=1024)
-    if author.avatar_url.endswith(".gif?size=1024"):
+    if str(author.avatar_url).endswith(".gif?size=1024"):
         url = author.avatar_url
         filepath += "/" + author.avatar + ".gif"
     else:
