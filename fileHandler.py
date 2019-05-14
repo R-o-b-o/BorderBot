@@ -1,23 +1,27 @@
 import aiofiles
 import aiohttp
 import os
+from os import environ as env
+
+imageFormat = env['IMAGEFORMAT']
 
 async def downloadAvatar(author):
     filepath = "avatars/" + str(author.id) 
     if not os.path.exists(filepath):
         os.makedirs(filepath)
-    url = str(author.avatar_url)
 
-    if url.endswith(".gif?size=1024"):
+    url = author.avatar_url_as(format=imageFormat, size=1024)
+    if author.avatar_url.endswith(".gif?size=1024"):
+        url = author.avatar_url
         filepath += "/" + author.avatar + ".gif"
     else:
-        filepath += "/" + author.avatar + ".webp"
+        filepath += "/" + author.avatar + f".{imageFormat}"
     
     if os.path.isfile(filepath):
         return filepath
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as r:
+        async with session.get(str(url)) as r:
             if r.status == 200:
                 f = await aiofiles.open(filepath, mode='wb')
                 await f.write(await r.read())

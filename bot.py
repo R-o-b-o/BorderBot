@@ -2,15 +2,16 @@ import discord
 from discord.ext import commands
 import asyncio
 from datetime import datetime
+from os import environ as env
 import fileHandler
 
-bot = commands.Bot(command_prefix='>', description="A bot to add colorful borders to an avatar! Test Server: https://discord.gg/Dy3anFM")
+bot = commands.Bot(command_prefix=env['PREFIX'], description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=344270500987404288, case_insensitive=True)
 cogs = ['cogs.avatar', 'cogs.border', 'cogs.other']
 
 @bot.event
 async def on_ready():
     #bot.remove_command('help')
-    await bot.change_presence(activity=discord.Game(">help"))
+    await bot.change_presence(activity=discord.Game(f"{env['PREFIX']}help"))
     try:
         for cog in cogs:
             bot.load_extension(cog)
@@ -25,6 +26,10 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
+
+    elif isinstance(error, commands.CommandNotFound):
+        return
+
     else:
         await ctx.send(f"Invalid parameters, consider reading the **{bot.command_prefix}help {ctx.invoked_with}**")
 
@@ -54,4 +59,4 @@ async def log():
 
         await asyncio.sleep(600)
 
-bot.run("NTU5MDA4NjgwMjY4MjY3NTI4.D3foPw.OTDU0IHH9hSGji3RV7Kq2q8ml34")
+bot.run(env['TOKEN'])

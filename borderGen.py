@@ -1,6 +1,9 @@
 from PIL import Image, ImageDraw, ImageColor, ImageSequence
 from io import BytesIO
+from os import environ as env
 import math
+
+imageFormat = env['IMAGEFORMAT']
 
 def GetMostFrequentColor(filepath):
     image = Image.open(filepath)
@@ -40,7 +43,7 @@ def GenerateBasic(filepath, color, size):
     imageAvatar.putalpha(mask)
     
     imageBytes = BytesIO()
-    imageAvatar.save(imageBytes, format="webp")
+    imageAvatar.save(imageBytes, format=imageFormat)
     imageBytes.seek(0)
     return imageBytes
 
@@ -58,7 +61,7 @@ def GenerateSquare(filepath, color, size):
     imageAvatar.paste(imageSquare, (0, 0), imageSquare)
 
     imageBytes = BytesIO()
-    imageAvatar.save(imageBytes, format="webp")
+    imageAvatar.save(imageBytes, format=imageFormat)
     imageBytes.seek(0)
     return imageBytes
 
@@ -85,7 +88,7 @@ def GenerateWithTexture(filepath, texturepath, size):
     imageAvatar.putalpha(mask)
 
     imageBytes = BytesIO()
-    imageAvatar.save(imageBytes, format="webp")
+    imageAvatar.save(imageBytes, format=imageFormat)
     imageBytes.seek(0)
     return imageBytes
 
