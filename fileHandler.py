@@ -1,9 +1,9 @@
 import aiofiles
 import aiohttp
 import os
-from os import environ as env
+import config
 
-imageFormat = env['IMAGEFORMAT']
+imageFormat = config.imageFormat
 
 async def downloadAvatar(author):
     filepath = "avatars/" + str(author.id) 

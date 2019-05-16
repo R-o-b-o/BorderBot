@@ -2,18 +2,16 @@ import discord
 from discord.ext import commands
 import asyncio
 from datetime import datetime
-from os import environ as env
-import fileHandler
+import fileHandler, config
 
-bot = commands.Bot(command_prefix=env['PREFIX'], description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=344270500987404288, case_insensitive=True)
-cogs = ['cogs.avatar', 'cogs.border', 'cogs.other']
+bot = commands.Bot(command_prefix=config.prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True)
 
 @bot.event
 async def on_ready():
     #bot.remove_command('help')
-    await bot.change_presence(activity=discord.Game(f"{env['PREFIX']}help"))
+    await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     try:
-        for cog in cogs:
+        for cog in config.cogs:
             bot.load_extension(cog)
         
         await fileHandler.CreateFolders()
@@ -59,4 +57,4 @@ async def log():
 
         await asyncio.sleep(600)
 
-bot.run(env['TOKEN'])
+bot.run(config.token)

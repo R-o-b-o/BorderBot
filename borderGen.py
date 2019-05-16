@@ -1,9 +1,9 @@
 from PIL import Image, ImageDraw, ImageColor, ImageSequence
 from io import BytesIO
-from os import environ as env
-import math
+import config
+import math, random
 
-imageFormat = env['IMAGEFORMAT']
+imageFormat = config.imageFormat
 
 def GetMostFrequentColor(filepath):
     image = Image.open(filepath)
@@ -17,6 +17,9 @@ def GetMostFrequentColor(filepath):
         if count > most_frequent_pixel[0]:
             most_frequent_pixel = (count, color)
     
+    if most_frequent_pixel[1] == (255, 255, 255) or most_frequent_pixel[1] == (0, 0, 0):
+        return "#%06x" % random.randint(0, 0xFFFFFF)
+
     return '#%02x%02x%02x' % most_frequent_pixel[1]
 
 def GenerateBasic(filepath, color, size):
