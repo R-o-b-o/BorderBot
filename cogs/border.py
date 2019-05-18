@@ -64,12 +64,12 @@ class Border(commands.Cog):
             uploadTime = math.trunc((timer() - startTime) * 1000)
 
             messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-            try:
-                webhook = await ctx.channel.create_webhook(name="BorderBot")
-                await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
-                await webhook.delete()
-            except:
-                await ctx.send(messageContent)
+        try:
+            webhook = await ctx.channel.create_webhook(name="BorderBot")
+            await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
+            await webhook.delete()
+        except:
+            await ctx.send(messageContent)
 
     @commands.command(name='borderTexture', description='Add a textured border to your avatar', usage="(upload texture image) (decimal between 0 - 1) [defaults to size 0.1]")
     @commands.cooldown(2, 5)
@@ -96,12 +96,12 @@ class Border(commands.Cog):
             uploadTime = math.trunc((timer() - startTime) * 1000)
 
             messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-            try:
-                webhook = await ctx.channel.create_webhook(name="BorderBot")
-                await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
-                await webhook.delete()
-            except:
-                await ctx.send(messageContent)
+        try:
+            webhook = await ctx.channel.create_webhook(name="BorderBot")
+            await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
+            await webhook.delete()
+        except:
+            await ctx.send(messageContent)
 
     @commands.command(name='borderSquare', hidden=True)
     async def borderSquare(self, ctx, color="default", size : float=0.1):

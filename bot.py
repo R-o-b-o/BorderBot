@@ -14,7 +14,7 @@ async def on_ready():
         for cog in config.cogs:
             bot.load_extension(cog)
         
-        await fileHandler.CreateFolders()
+        fileHandler.CreateFolders()
         bot.loop.create_task(log())
     except commands.errors.ExtensionAlreadyLoaded:
         print("Tried to reload extension")

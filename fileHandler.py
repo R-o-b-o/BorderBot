@@ -44,7 +44,7 @@ async def saveImage(filepath, fileBytes):
     await f.write(fileBytes.read())
     await f.close()
 
-async def CreateFolders():
+def CreateFolders():
     filepaths = ["avatars", "textures", "logs"]
     for filepath in filepaths:
         if not(os.path.exists(filepath)):
