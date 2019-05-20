@@ -29,22 +29,24 @@ def GenerateBasic(filepath, color, size):
     color = ImageColor.getcolor(color, 'RGBA')
 
     imageAvatar = Image.open(filepath)
-    sideLength = imageAvatar.width
+    imageRing = Image.new('RGBA', (2048, 2048), color=color)
 
-    r = sideLength / 2 * (1-size)
-
-    imageRing = Image.new('RGBA', imageAvatar.size, color=color)
-    draw = ImageDraw.Draw(imageRing)
-    x = sideLength / 2
+    midp = imageRing.width / 2
+    r = midp * (1-size)
     
-    draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
+    draw = ImageDraw.Draw(imageRing)
+    
+    draw.ellipse((midp-r, midp-r, midp+r, midp+r), fill=(0,0,0,0))
+    imageRing.thumbnail(imageAvatar.size, Image.LANCZOS)
     imageAvatar.paste(imageRing, (0, 0), imageRing)
 
-    mask = Image.new('L', imageAvatar.size, 0)
+    mask = Image.new('L', (2048, 2048), 0)
     draw = ImageDraw.Draw(mask) 
-    draw.ellipse((0, 0) + imageAvatar.size, fill=255)
-    imageAvatar.putalpha(mask)
+    draw.ellipse((0, 0) + mask.size, fill=255)
+    imageAvatar.putalpha(mask.resize(imageAvatar.size, Image.LANCZOS))
     
+    imageAvatar.thumbnail(config.maxSize, Image.LANCZOS)
+
     imageBytes = BytesIO()
     imageAvatar.save(imageBytes, format=imageFormat)
     imageBytes.seek(0)
@@ -75,21 +77,24 @@ def GenerateWithTexture(filepath, texturepath, size):
     imageAvatar = Image.open(filepath)
     imageRing = Image.open(texturepath)
 
-    r = imageAvatar.width / 2 * (1-size)
+    imageRing = imageRing.resize((2048, 2048))
+    x = imageRing.width / 2
+    r = x * (1-size)
     
-    imageRing = imageRing.resize(imageAvatar.size)
     imageRing = imageRing.convert("RGBA")
     draw = ImageDraw.Draw(imageRing)
-    x = imageAvatar.width / 2
     
     draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
+    imageRing = imageRing.resize(imageAvatar.size, Image.LANCZOS)
     imageAvatar.paste(imageRing, (0, 0), imageRing)
 
-    mask = Image.new('L', imageAvatar.size, 0)
+    mask = Image.new('L', (2048, 2048), 0)
     draw = ImageDraw.Draw(mask) 
-    draw.ellipse((0, 0) + imageAvatar.size, fill=255)
-    imageAvatar.putalpha(mask)
+    draw.ellipse((0, 0) + mask.size, fill=255)
+    imageAvatar.putalpha(mask.resize(imageAvatar.size, Image.LANCZOS))
 
+    imageAvatar.thumbnail(config.maxSize, Image.LANCZOS)
+    
     imageBytes = BytesIO()
     imageAvatar.save(imageBytes, format=imageFormat)
     imageBytes.seek(0)

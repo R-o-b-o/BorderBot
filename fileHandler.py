@@ -6,6 +6,9 @@ import config
 imageFormat = config.imageFormat
 
 async def downloadAvatar(author):
+    if author.avatar is None:
+        return
+        
     filepath = "avatars/" + str(author.id) 
     if not os.path.exists(filepath):
         os.makedirs(filepath)
