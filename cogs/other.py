@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from timeit import default_timer as timer
-import math, random
+import math, random, os
 import fileHandler
 
 class Other(commands.Cog):
@@ -47,8 +47,14 @@ class Other(commands.Cog):
 
         commands = await fileHandler.GetNumberOfCommands()
 
-        await ctx.send("I am in **%d** servers with **%d** users" % (len(guilds), users))
-        await ctx.send("**%d** commands have been made" % (commands))
+        _, dirs, files = next(os.walk("avatars/"))
+        numAvatars = len(files)
+        numUsers = len(dirs)
+        
+        statsMessage = ("I am in **%d** servers with **%d** users\n"
+        "**%d** commands have been made\n"
+        "I also have **%d** avatars stored for **%d** users") % (len(guilds), users, commands, numAvatars, numUsers)
+        await ctx.send(statsMessage)
     
     @commands.command(name='invite', description="returns an invite link for the bot", aliases=['link'])
     @commands.cooldown(1, 30)
