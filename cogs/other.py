@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from timeit import default_timer as timer
 import math, random, os
-import fileHandler
+import fileHandler, config
 
 class Other(commands.Cog):
     
@@ -61,6 +61,28 @@ class Other(commands.Cog):
     async def invite(self, ctx):
         embed=discord.Embed(title="Bot Invite", description="https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=536996928", color=0xAD1457)
         await ctx.send(embed=embed)
+    
+    @commands.command(name='reload', hidden=True)
+    @commands.is_owner()
+    async def reload(self, ctx, cog = "all"):
+        if cog == "all":
+            failed = 0
+            success = 0
+            for cog in config.cogs:
+                try:
+                    self.bot.reload_extension(cog)
+                    success += 1
+                except:
+                    failed += 1
+
+            await ctx.send(f"Reloaded all cogs.\n**Success**: {success} **Failed**: {failed}")
+            return
+        else:
+            try:
+                self.bot.reload_extension("cogs." + cog)
+                await ctx.send(f"Successfully reloaded the cog **{cog}**.")
+            except:
+                await ctx.send(f"Error reloading the cog **{cog}**.")
 
 def setup(bot):
     bot.add_cog(Other(bot))
