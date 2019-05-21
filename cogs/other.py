@@ -47,9 +47,14 @@ class Other(commands.Cog):
 
         commands = await fileHandler.GetNumberOfCommands()
 
+        numAvatars = 0
+        numUsers = 0
         _, dirs, files = next(os.walk("avatars/"))
-        numAvatars = len(files)
-        numUsers = len(dirs)
+        for _, dirs, files in os.walk("avatars/"):
+            for _ in dirs:
+                numUsers += 1
+            for _ in files:
+                numAvatars += 1
         
         statsMessage = ("I am in **%d** servers with **%d** users\n"
         "**%d** commands have been made\n"
