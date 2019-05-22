@@ -1,3 +1,4 @@
+import logging
 import discord
 from discord.ext import commands
 import asyncio
@@ -10,14 +11,7 @@ bot = commands.Bot(command_prefix=config.prefix, description="A bot to add color
 async def on_ready():
     #bot.remove_command('help')
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
-    try:
-        for cog in config.cogs:
-            bot.load_extension(cog)
-        
-        fileHandler.CreateFolders()
-        bot.loop.create_task(log())
-    except commands.errors.ExtensionAlreadyLoaded:
-        print("Tried to reload extension")
+    bot.loop.create_task(log_guild_stats())
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
 @bot.event
@@ -42,23 +36,27 @@ async def on_user_update(before, after):
 
 @bot.event
 async def on_command_completion(ctx):
-    f = open("logs/commands.log", "a+")
-    f.write("\n%s %s" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), ctx.command.name))
+    commandLogger.info(ctx.command.name)
 
 @bot.event
 async def on_guild_join(ctx):
     await bot.get_user(344270500987404288).send("BorderBot has joined a new server! ㊗")
 
-async def log():
+async def log_guild_stats():
     while True:
         guilds = bot.guilds
         users = 0
         for guild in guilds:
             users += len(guild.members)
 
-        f = open("logs/guilds.log", "a+")
-        f.write("\n%s %d %d" % (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), len(guilds), users))
+        guildLogger.info("%d %d" % (len(guilds), users))
 
         await asyncio.sleep(600)
+
+fileHandler.CreateFolders()
+guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
+commandLogger = fileHandler.setupLogger("comamnds", "logs/commands.log")
+for cog in config.cogs:
+    bot.load_extension(cog) 
 
 bot.run(config.token)

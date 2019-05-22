@@ -2,8 +2,20 @@ import aiofiles
 import aiohttp
 import os
 import config
+import logging
 
 imageFormat = config.imageFormat
+formatter = logging.Formatter('%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+def setupLogger(name, filename, level=logging.INFO):
+    handler = logging.FileHandler(filename)        
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+
+    return logger
 
 async def downloadAvatar(author):
     if author.avatar is None:
@@ -48,8 +60,7 @@ async def saveImage(filepath, fileBytes):
     await f.close()
 
 def CreateFolders():
-    filepaths = ["avatars", "textures", "logs"]
-    for filepath in filepaths:
+    for filepath in config.filepaths:
         if not(os.path.exists(filepath)):
                 os.mkdir(filepath)
 
