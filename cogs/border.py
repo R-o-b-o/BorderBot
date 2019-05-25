@@ -66,7 +66,11 @@ class Border(commands.Cog):
         if color == "default":
             color = borderGen.GetMostFrequentColor(filepath)
         
-        fileBytes = borderGen.GenerateBasic(filepath, color, size)
+        try:
+            fileBytes = borderGen.GenerateBasic(filepath, color, size)
+        except ValueError:
+            await ctx.send("I could not find color: **%s**\nFor the list of possible color names: https://www.w3schools.com/colors/colors_names.asp" % color)
+            return
         
         extension = ".png"
         if filepath.endswith(".gif"):
@@ -86,6 +90,10 @@ class Border(commands.Cog):
     async def borderTexture_command(self, ctx, size : float=0.1):
         await ctx.channel.trigger_typing()
         startTime = timer()
+
+        if len(ctx.message.attachments) == 0:
+            await ctx.send("I could not see a texture file, please upload one in your command message for it to work")
+            return
 
         texturePath = await fileHandler.downloadTexture(ctx.message.attachments[0].filename, ctx.message.attachments[0].url)
         filepath = await fileHandler.downloadAvatar(ctx.author)
