@@ -20,6 +20,9 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return
     
+    if isinstance(error, commands.CheckFailure):
+        pass
+    
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
 
@@ -27,7 +30,7 @@ async def on_command_error(ctx, error):
         await ctx.send("I don't have sufficient permissions for that command.")
     
     else:
-        await ctx.send(f"Invalid parameters, consider reading the **{bot.command_prefix}help {ctx.invoked_with}**")
+        await ctx.send(f"Something went wrong, consider reading the **{bot.command_prefix}help {ctx.invoked_with}**")
 
 @bot.event
 async def on_user_update(before, after):

@@ -35,22 +35,23 @@ async def downloadAvatar(author):
     if os.path.isfile(filepath):
         return filepath
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(str(url)) as r:
-            if r.status == 200:
-                f = await aiofiles.open(filepath, mode='wb')
-                await f.write(await r.read())
-                await f.close()
+    await downloadFromURL(filepath, str(url))
+    return filepath
+
+async def downloadGuildIcon(guild):
+    if guild.icon is None:
+        return
+
+    url = guild.icon_url_as(format=imageFormat, size=128)
+    
+    filepath = f"guilds/{guild.id}.{imageFormat}"
+
+    await downloadFromURL(filepath, str(url))
     return filepath
 
 async def downloadTexture(filename, url):
     filepath = "textures/" + filename
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as r:
-            if r.status == 200:
-                f = await aiofiles.open(filepath, mode='wb')
-                await f.write(await r.read())
-                await f.close()
+    await downloadFromURL(filepath, url)
     return filepath
 
 async def saveImage(filepath, fileBytes):
@@ -58,6 +59,10 @@ async def saveImage(filepath, fileBytes):
     f = await aiofiles.open(filepath, mode='wb')
     await f.write(fileBytes.read())
     await f.close()
+
+async def getFileBytesFromFile(filepath):
+    f = await aiofiles.open(filepath, mode='rb')
+    return await f.read()
 
 def CreateFolders():
     for filepath in config.filepaths:
@@ -68,3 +73,11 @@ async def GetNumberOfCommands():
     async with aiofiles.open('logs/commands.log', mode='r') as f:
         lines = await f.readlines()
     return len(lines)
+
+async def downloadFromURL(filepath, url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as r:
+            if r.status == 200:
+                f = await aiofiles.open(filepath, mode='wb')
+                await f.write(await r.read())
+                await f.close()
