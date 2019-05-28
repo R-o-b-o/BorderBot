@@ -51,11 +51,12 @@ class Guild(commands.Cog):
         
         await reactionMessage.clear_reactions()
     
-    @commands.command(name="guildAvatarReset")
+    @commands.command(name="guildIconReset")
     @commands.check(hasManageGuild)
-    async def guildAvatarReset(self, ctx):
+    async def guildIconReset(self, ctx):
         await ctx.guild.edit(icon = await fileHandler.getFileBytesFromFile(f"guilds/{ctx.guild.id}.{config.imageFormat}"))
-
+        await ctx.message.add_reaction("☑")
+        
 
 def setup(bot):
     bot.add_cog(Guild(bot))
