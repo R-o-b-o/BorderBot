@@ -5,8 +5,6 @@ import math, random, os, asyncio
 import fileHandler, borderGen, config
 
 async def hasManageGuild(ctx):
-    if not ctx.author.guild_permissions.manage_guild:
-        await ctx.send("You have to have the `manage guild` permission to use this command")
     return ctx.author.guild_permissions.manage_guild
 
 class Guild(commands.Cog):

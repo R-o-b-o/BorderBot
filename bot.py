@@ -21,7 +21,8 @@ async def on_command_error(ctx, error):
         return
     
     if isinstance(error, commands.CheckFailure):
-        pass
+        if not ctx.author.guild_permissions.manage_guild:
+            await ctx.send("You have to have the `manage guild` permission to use this command")
     
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
