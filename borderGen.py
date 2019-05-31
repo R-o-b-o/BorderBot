@@ -8,6 +8,7 @@ imageFormat = config.imageFormat
 def GetMostFrequentColor(filepath):
     image = Image.open(filepath)
     
+    image = image.convert('P', palette=Image.ADAPTIVE, colors=10)
     image = image.convert("RGB")
     pixels = image.getcolors(image.width ** 2)
 
@@ -18,7 +19,7 @@ def GetMostFrequentColor(filepath):
             most_frequent_pixel = (count, color)
     
     if most_frequent_pixel[1] == (255, 255, 255) or most_frequent_pixel[1] == (0, 0, 0):
-        return "#%06x" % random.randint(0, 0xFFFFFF)
+        most_frequent_pixel = random.choice(pixels)
 
     return '#%02x%02x%02x' % most_frequent_pixel[1]
 
