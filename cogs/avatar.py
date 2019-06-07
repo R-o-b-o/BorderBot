@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import os, random
+import fileHandler, borderGen
 
 class Avatar(commands.Cog):
     
@@ -56,6 +57,14 @@ class Avatar(commands.Cog):
             for name in files:
                 filepaths.append(os.path.join(path, name))
         await ctx.send(file=discord.File(random.choice(filepaths)))
+
+    @commands.command(name='avatarColors')
+    @commands.cooldown(10,30)
+    async def avatarColors(self, ctx, numColors = 5):
+        filepath = await fileHandler.downloadAvatar(ctx.author)
+        fileBytes = borderGen.GetDominantColors(filepath, numColors)
+        await ctx.send(file=discord.File(fileBytes, filename="colors.png"))
+
 
 def setup(bot):
     bot.add_cog(Avatar(bot))

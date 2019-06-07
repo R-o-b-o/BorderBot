@@ -23,6 +23,22 @@ def GetMostFrequentColor(filepath):
 
     return '#%02x%02x%02x' % most_frequent_pixel[1]
 
+def GetDominantColors(filepath, numColors):
+    image = Image.open(filepath)
+    image = image.convert('P', palette=Image.ADAPTIVE, colors=numColors)
+    image = image.convert("RGB")
+    
+    colors = image.getcolors(numColors)
+    imageColors = Image.new("RGB", (100 * numColors, 100))
+    draw = ImageDraw.Draw(imageColors)
+    for i in range(0, len(colors)):
+        draw.rectangle([i * 100, 0, i * 100 + 100, 100], fill=colors[i][1])
+
+    imageBytes = BytesIO()
+    imageColors.save(imageBytes, format="png")
+    imageBytes.seek(0)
+    return imageBytes
+
 def GenerateBasic(filepath, color, size):
     if filepath.endswith(".gif"):
         return GenerateGif(filepath, color, size)
