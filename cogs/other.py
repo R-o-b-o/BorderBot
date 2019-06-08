@@ -17,7 +17,7 @@ class Other(commands.Cog):
         await m.edit(content="that took **%dms**" % time)
 
     @commands.command(name='feedback', description="Give feedback to improve the bot's functionality", aliases=['question'], usage="Feedback-Goes-Here")
-    @commands.cooldown(5,600)
+    @commands.cooldown(5,600,commands.BucketType.guild)
     async def feedback(self, ctx, feedback=""):
         if feedback == "":
             if random.randint(0, 2) == 0:
@@ -31,7 +31,7 @@ class Other(commands.Cog):
             await self.bot.get_channel(560175720052293663).send(embed=embed)
 
     @commands.command(name='faq', description="See the faq")
-    @commands.cooldown(5,600)
+    @commands.cooldown(5,600,commands.BucketType.guild)
     async def faq(self, ctx):
         f = open("FAQ.md", "r")
         embed=discord.Embed(title="FAQ", description=f.read(), color=0xAD1457)
@@ -62,7 +62,7 @@ class Other(commands.Cog):
         await ctx.send(statsMessage)
     
     @commands.command(name='invite', description="returns an invite link for the bot", aliases=['link'])
-    @commands.cooldown(1, 30)
+    @commands.cooldown(1, 30,commands.BucketType.guild)
     async def invite(self, ctx):
         embed=discord.Embed(title="Bot Invite", description="https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=536996960", color=0xAD1457)
         await ctx.send(embed=embed)

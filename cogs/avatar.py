@@ -36,7 +36,7 @@ class Avatar(commands.Cog):
             await ctx.send(embed=embed)
     
     @commands.command(name='history', description='See a history of your avatars', aliases=['avatars'])
-    @commands.cooldown(2,300)
+    @commands.cooldown(2,300,commands.BucketType.user)
     async def history(self, ctx):
         await ctx.channel.trigger_typing()
         startTime = timer()
@@ -71,7 +71,7 @@ class Avatar(commands.Cog):
             await reactionMessage.delete()
     
     @commands.command(name='randomAvatar', description='Receive a random avatar')
-    @commands.cooldown(10,30)
+    @commands.cooldown(10,30,commands.BucketType.user)
     async def randomAvatar(self, ctx):
         filepaths = []
         for path, _, files in os.walk("avatars/"):

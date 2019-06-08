@@ -22,7 +22,7 @@ class Border(commands.Cog):
         self.bot = bot
 
     @commands.command(name='random', description='Generate a border with random parameters', usage="number of images to generate (max 5)", aliases=['randomBorder'])
-    @commands.cooldown(5,30)
+    @commands.cooldown(5,30,commands.BucketType.guild)
     async def random_command(self, ctx, times : int=1):
         if  (times <= 5):
             await ctx.channel.trigger_typing()
@@ -40,7 +40,7 @@ class Border(commands.Cog):
             await ctx.send("There is a maximun of 5, *sorry*")
 
     @commands.command(name='randomTexture', description='Generate a border with a random texture')
-    @commands.cooldown(5,30)
+    @commands.cooldown(5,30,commands.BucketType.guild)
     async def randomTexture_command(self, ctx):
         await ctx.channel.trigger_typing()
         startTime = timer()
@@ -53,7 +53,7 @@ class Border(commands.Cog):
         await send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")
 
     @commands.command(name='border', description='Add a single color border to your avatar', usage="(color) (decimal between 0 - 1) [defaults to size 0.1 and the most occuring color]")
-    @commands.cooldown(2, 5)
+    @commands.cooldown(2, 5,commands.BucketType.guild)
     async def border_command(self, ctx, color="default", size : float=0.1):
         await ctx.channel.trigger_typing()
         startTime = timer()
@@ -86,7 +86,7 @@ class Border(commands.Cog):
         await send_preview_webhook(ctx, fileMessage, messageContent)
 
     @commands.command(name='borderTexture', description='Add a textured border to your avatar', usage="(upload texture image) (decimal between 0 - 1) [defaults to size 0.1]")
-    @commands.cooldown(2, 5)
+    @commands.cooldown(2, 5,commands.BucketType.guild)
     async def borderTexture_command(self, ctx, size : float=0.1):
         await ctx.channel.trigger_typing()
         startTime = timer()
@@ -140,7 +140,7 @@ class Border(commands.Cog):
         await send_preview_webhook(ctx, fileMessage, messageContent)
 
     @commands.command(name='editor', description='Lets you edit your border in real time!', aliases=['edit'])
-    @commands.cooldown(1, 60)
+    @commands.cooldown(1, 60,commands.BucketType.user)
     async def editor(self, ctx):
         filepath = await fileHandler.downloadAvatar(ctx.author)
         
