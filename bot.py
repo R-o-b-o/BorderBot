@@ -55,7 +55,7 @@ async def log_guild_stats():
 
         guildLogger.info("%d %d" % (len(guilds), users))
 
-        await asyncio.sleep(600)
+        await asyncio.sleep(3600)
 
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")

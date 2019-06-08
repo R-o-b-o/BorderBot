@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import os, random, math
+import os, random, math, asyncio
 from timeit import default_timer as timer
 import fileHandler, borderGen
 
@@ -40,19 +40,37 @@ class Avatar(commands.Cog):
     @commands.command(name='history', description='See a history of your avatar', aliases=['avatars'])
     @commands.cooldown(2,300)
     async def history(self, ctx):
+        await ctx.channel.trigger_typing()
         startTime = timer()
-        if isinstance(ctx.channel, discord.abc.GuildChannel):
-            await ctx.send("Dmed previous avatars 🖼!")
-        files = []
+        
         filepaths = []
         filepath = "avatars/" + str(ctx.author.id) + "/"
         for file in os.listdir(filepath):
             filepaths.append(filepath + file)
-            files.append(discord.File(filepath + file))
+
         fileBytes = borderGen.GetavatarHistoryImage(filepaths)
         await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms", file=discord.File(fileBytes, filename="history.png"))
-        for i in range(0, len(files), 10):
-            await ctx.author.send(files=files[i:i+10])
+
+        reactionMessage = await ctx.send("Would you like me to dm you these individually?")
+        await reactionMessage.add_reaction("❌")
+        await reactionMessage.add_reaction("☑")
+
+        def check(reaction, user):
+            return user == ctx.author
+
+        try:
+            reaction, _ = await self.bot.wait_for('reaction_add', timeout=60, check=check)
+
+            if str(reaction.emoji) == '☑':
+                if isinstance(ctx.channel, discord.abc.GuildChannel):
+                    await reactionMessage.edit(content="Dmed previous avatars 🖼!")
+                files = [discord.File(filepath) for filepath in filepaths]
+                for i in range(0, len(files), 10):
+                    await ctx.author.send(files=files[i:i+10])
+            else:
+                await reactionMessage.clear_reactions()
+        except asyncio.TimeoutError:
+            await reactionMessage.clear_reactions()
     
     @commands.command(name='randomAvatar', description='Receive a random avatar')
     @commands.cooldown(10,30)
