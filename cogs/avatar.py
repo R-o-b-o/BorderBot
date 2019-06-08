@@ -68,9 +68,9 @@ class Avatar(commands.Cog):
                 for i in range(0, len(files), 10):
                     await ctx.author.send(files=files[i:i+10])
             else:
-                await reactionMessage.clear_reactions()
+                await reactionMessage.delete()
         except asyncio.TimeoutError:
-            await reactionMessage.clear_reactions()
+            await reactionMessage.delete()
     
     @commands.command(name='randomAvatar', description='Receive a random avatar')
     @commands.cooldown(10,30)
