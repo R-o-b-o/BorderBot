@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-import os, random
+import os, random, math
+from timeit import default_timer as timer
 import fileHandler, borderGen
 
 class Avatar(commands.Cog):
@@ -39,13 +40,17 @@ class Avatar(commands.Cog):
     @commands.command(name='history', description='See a history of your avatar', aliases=['avatars'])
     @commands.cooldown(2,300)
     async def history(self, ctx):
+        startTime = timer()
         if isinstance(ctx.channel, discord.abc.GuildChannel):
             await ctx.send("Dmed previous avatars 🖼!")
         files = []
+        filepaths = []
         filepath = "avatars/" + str(ctx.author.id) + "/"
         for file in os.listdir(filepath):
+            filepaths.append(filepath + file)
             files.append(discord.File(filepath + file))
-        
+        fileBytes = borderGen.GetavatarHistoryImage(filepaths)
+        await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms", file=discord.File(fileBytes, filename="history.png"))
         for i in range(0, len(files), 10):
             await ctx.author.send(files=files[i:i+10])
     
@@ -58,7 +63,7 @@ class Avatar(commands.Cog):
                 filepaths.append(os.path.join(path, name))
         await ctx.send(file=discord.File(random.choice(filepaths)))
 
-    @commands.command(name='avatarColors')
+    @commands.command(name='avatarColors', description='Gets you n dominant colors', aliases=['avatarcolours, colors'], usage="(number of colors)")
     @commands.cooldown(10,30)
     async def avatarColors(self, ctx, numColors = 5):
         filepath = await fileHandler.downloadAvatar(ctx.author)

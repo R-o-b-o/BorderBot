@@ -34,10 +34,22 @@ def GetDominantColors(filepath, numColors):
     for i in range(0, len(colors)):
         draw.rectangle([i * 100, 0, i * 100 + 100, 100], fill=colors[i][1])
 
-    imageBytes = BytesIO()
-    imageColors.save(imageBytes, format="png")
-    imageBytes.seek(0)
-    return imageBytes
+    return GetImageBytes(imageColors, "png")
+
+def GetavatarHistoryImage(filepaths):
+    sideLength = math.ceil(math.sqrt(len(filepaths)))
+
+    imageHistory = Image.new("RGBA", (3000, 3000))
+    width = math.trunc(imageHistory.width / sideLength)
+    height = math.trunc(imageHistory.height / sideLength)
+
+    for i in range(0, len(filepaths)):
+        image = Image.open(filepaths[i])
+        #image = image.convert("RGB")
+        image = image.resize((width, height))
+        imageHistory.paste(image, ((i % sideLength) * width, height * math.trunc(i / sideLength)))
+
+    return GetImageBytes(imageHistory, "webp")
 
 def GenerateBasic(filepath, color, size):
     if filepath.endswith(".gif"):
@@ -64,10 +76,7 @@ def GenerateBasic(filepath, color, size):
     
     imageAvatar.thumbnail(config.maxSize, Image.LANCZOS)
 
-    imageBytes = BytesIO()
-    imageAvatar.save(imageBytes, format=imageFormat)
-    imageBytes.seek(0)
-    return imageBytes
+    return GetImageBytes(imageAvatar, imageFormat)
 
 def GenerateSquare(filepath, color, size):
     color = ImageColor.getcolor(color, 'RGBA')
@@ -82,10 +91,7 @@ def GenerateSquare(filepath, color, size):
     draw.rectangle((x, x, imageAvatar.width - x, imageAvatar.height - x), fill=(0,0,0,0))
     imageAvatar.paste(imageSquare, (0, 0), imageSquare)
 
-    imageBytes = BytesIO()
-    imageAvatar.save(imageBytes, format=imageFormat)
-    imageBytes.seek(0)
-    return imageBytes
+    return GetImageBytes(imageAvatar, imageFormat)
 
 def GenerateWithTexture(filepath, texturepath, size):
     if filepath.endswith(".gif"):
@@ -112,10 +118,7 @@ def GenerateWithTexture(filepath, texturepath, size):
 
     imageAvatar.thumbnail(config.maxSize, Image.LANCZOS)
     
-    imageBytes = BytesIO()
-    imageAvatar.save(imageBytes, format=imageFormat)
-    imageBytes.seek(0)
-    return imageBytes
+    return GetImageBytes(imageAvatar, imageFormat)
 
 def GenerateGif(filepath, color, size):
     imageGif = Image.open(filepath)
@@ -163,3 +166,9 @@ def GenerateGifWithTexture(filepath, texturepath, size):
         
         frames.append(frame)
     frames[0].save(filepath, save_all=True, append_images=frames[1:])
+
+def GetImageBytes(image, format):
+    imageBytes = BytesIO()
+    image.save(imageBytes, format=format)
+    imageBytes.seek(0)
+    return imageBytes
