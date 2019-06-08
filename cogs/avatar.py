@@ -63,7 +63,7 @@ class Avatar(commands.Cog):
                 filepaths.append(os.path.join(path, name))
         await ctx.send(file=discord.File(random.choice(filepaths)))
 
-    @commands.command(name='avatarColors', description='Gets you n dominant colors', aliases=['avatarcolours, colors'], usage="(number of colors)")
+    @commands.command(name='avatarColors', description='Gets you n dominant colors', aliases=['avatarcolours', 'colors'], usage="(number of colors)")
     @commands.cooldown(10,30)
     async def avatarColors(self, ctx, numColors = 5):
         filepath = await fileHandler.downloadAvatar(ctx.author)
