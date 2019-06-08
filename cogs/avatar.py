@@ -10,10 +10,8 @@ class Avatar(commands.Cog):
         self.bot = bot
 
     @commands.command(name='avatar', description='Gets you a link to someones avatar', aliases=['pfp'], usage="@user")
-    async def avatar(self, ctx):
-        if len(ctx.message.mentions) > 0:
-            member = ctx.message.mentions[0]
-        else:
+    async def avatar(self, ctx, member : discord.Member = None):
+        if member is None:
             member = ctx.author
 
         url = member.avatar_url_as(format='png', size=1024)
@@ -37,7 +35,7 @@ class Avatar(commands.Cog):
         
             await ctx.send(embed=embed)
     
-    @commands.command(name='history', description='See a history of your avatar', aliases=['avatars'])
+    @commands.command(name='history', description='See a history of your avatars', aliases=['avatars'])
     @commands.cooldown(2,300)
     async def history(self, ctx):
         await ctx.channel.trigger_typing()
@@ -59,7 +57,7 @@ class Avatar(commands.Cog):
             return user == ctx.author
 
         try:
-            reaction, _ = await self.bot.wait_for('reaction_add', timeout=60, check=check)
+            reaction, _ = await self.bot.wait_for('reaction_add', timeout=30, check=check)
 
             if str(reaction.emoji) == '☑':
                 if isinstance(ctx.channel, discord.abc.GuildChannel):
