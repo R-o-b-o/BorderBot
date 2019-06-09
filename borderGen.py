@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageColor, ImageSequence
 from io import BytesIO
 import config
 import math, random
+from asgiref.sync import sync_to_async
 
 imageFormat = config.imageFormat
 
@@ -36,6 +37,7 @@ def GetDominantColors(filepath, numColors):
 
     return GetImageBytes(imageColors, "png")
 
+@sync_to_async
 def GetavatarHistoryImage(filepaths):
     sideLength = math.ceil(math.sqrt(len(filepaths)))
 

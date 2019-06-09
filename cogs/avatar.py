@@ -46,7 +46,7 @@ class Avatar(commands.Cog):
         for file in os.listdir(filepath):
             filepaths.append(filepath + file)
 
-        fileBytes = borderGen.GetavatarHistoryImage(filepaths)
+        fileBytes = await borderGen.GetavatarHistoryImage(filepaths)
         await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms", file=discord.File(fileBytes, filename="history.png"))
 
         reactionMessage = await ctx.send("Would you like me to dm you these individually?")
@@ -79,7 +79,7 @@ class Avatar(commands.Cog):
                 filepaths.append(os.path.join(path, name))
         await ctx.send(file=discord.File(random.choice(filepaths)))
 
-    @commands.command(name='avatarColors', description='Gets you n dominant colors', aliases=['avatarcolours', 'colors'], usage="(number of colors)")
+    @commands.command(name='avatarColors', description='Gets you n dominant colors', aliases=['avatarcolours', 'colors', 'colours'], usage="(number of colors)")
     @commands.cooldown(10,30)
     async def avatarColors(self, ctx, numColors = 5):
         filepath = await fileHandler.downloadAvatar(ctx.author)
