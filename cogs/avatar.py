@@ -37,12 +37,14 @@ class Avatar(commands.Cog):
     
     @commands.command(name='history', description='See a history of your avatars', aliases=['avatars'])
     @commands.cooldown(2,300,commands.BucketType.user)
-    async def history(self, ctx):
+    async def history(self, ctx, member : discord.Member = None):
+        if member is None:
+            member = ctx.author
         await ctx.channel.trigger_typing()
         startTime = timer()
         
         filepaths = []
-        filepath = "avatars/" + str(ctx.author.id) + "/"
+        filepath = "avatars/" + str(member.id) + "/"
         for file in os.listdir(filepath):
             filepaths.append(filepath + file)
 
