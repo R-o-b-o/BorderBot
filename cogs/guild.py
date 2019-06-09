@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 from timeit import default_timer as timer
 import math, random, os, asyncio
-import fileHandler, borderGen, config
+from utils import fileHandler, borderGen
+import config
 
 async def hasManageGuild(ctx):
     return ctx.author.guild_permissions.manage_guild

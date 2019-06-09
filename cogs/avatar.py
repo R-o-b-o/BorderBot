@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import os, random, math, asyncio
 from timeit import default_timer as timer
-import fileHandler, borderGen
+from utils import fileHandler, borderGen
 
 class Avatar(commands.Cog):
     

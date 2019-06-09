@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 from timeit import default_timer as timer
 import math, random, os
-import fileHandler, config
+from utils import fileHandler
+import config
 
 class Other(commands.Cog):
     

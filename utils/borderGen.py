@@ -53,6 +53,7 @@ def GetavatarHistoryImage(filepaths):
 
     return GetImageBytes(imageHistory, "webp")
 
+@sync_to_async
 def GenerateBasic(filepath, color, size):
     if filepath.endswith(".gif"):
         return GenerateGif(filepath, color, size)
@@ -80,6 +81,7 @@ def GenerateBasic(filepath, color, size):
 
     return GetImageBytes(imageAvatar, imageFormat)
 
+@sync_to_async
 def GenerateSquare(filepath, color, size):
     color = ImageColor.getcolor(color, 'RGBA')
 
@@ -95,6 +97,7 @@ def GenerateSquare(filepath, color, size):
 
     return GetImageBytes(imageAvatar, imageFormat)
 
+@sync_to_async
 def GenerateWithTexture(filepath, texturepath, size):
     if filepath.endswith(".gif"):
         return GenerateGifWithTexture(filepath, texturepath, size)

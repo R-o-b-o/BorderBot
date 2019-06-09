@@ -3,7 +3,7 @@ from discord.ext import commands
 import math, asyncio, random, os
 from io import BytesIO
 from timeit import default_timer as timer
-import borderGen, fileHandler
+from utils import borderGen, fileHandler
 
 async def send_preview_webhook(ctx, fileMessage, messageContent):
     try:
@@ -32,7 +32,7 @@ class Border(commands.Cog):
                 filepath = await fileHandler.downloadAvatar(ctx.author)
                 color = "#%06x" % random.randint(0, 0xFFFFFF)
                 size = round(random.random() / 5 + 0.05, 4)
-                fileBytes = borderGen.GenerateBasic(filepath, color, size)
+                fileBytes = await borderGen.GenerateBasic(filepath, color, size)
                 
                 await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
             await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms")
@@ -47,7 +47,7 @@ class Border(commands.Cog):
         texturepath = "textures/" + random.choice(os.listdir("textures/"))
 
         filepath = await fileHandler.downloadAvatar(ctx.author)
-        fileBytes = borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
+        fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
 
         fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " borderTextured.png"))
         await send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")
@@ -67,7 +67,7 @@ class Border(commands.Cog):
             color = borderGen.GetMostFrequentColor(filepath)
         
         try:
-            fileBytes = borderGen.GenerateBasic(filepath, color, size)
+            fileBytes = await borderGen.GenerateBasic(filepath, color, size)
         except ValueError:
             await ctx.send("I could not find color: **%s**\nFor the list of possible color names: https://www.w3schools.com/colors/colors_names.asp" % color)
             return
@@ -101,7 +101,7 @@ class Border(commands.Cog):
         downloadTime = math.trunc((timer() - startTime) * 1000)
         startTime = timer()
         
-        fileBytes = borderGen.GenerateWithTexture(filepath, texturePath, size)
+        fileBytes = await borderGen.GenerateWithTexture(filepath, texturePath, size)
         
         processTime = math.trunc((timer() - startTime) * 1000)
         startTime = timer()
@@ -128,7 +128,7 @@ class Border(commands.Cog):
         if color == "default":
             color = borderGen.GetMostFrequentColor(filepath)
             
-        fileBytes = borderGen.GenerateSquare(filepath, color, size)
+        fileBytes = await borderGen.GenerateSquare(filepath, color, size)
             
         processTime = math.trunc((timer() - startTime) * 1000)
         startTime = timer()
@@ -182,9 +182,9 @@ class Border(commands.Cog):
                     textured = True
                     
                 if textured:
-                    fileBytes = borderGen.GenerateWithTexture(filepath, texturePath, size)
+                    fileBytes = await borderGen.GenerateWithTexture(filepath, texturePath, size)
                 else:
-                    fileBytes = borderGen.GenerateBasic(filepath, color, size)
+                    fileBytes = await borderGen.GenerateBasic(filepath, color, size)
 
                 await imageMessage.delete()
                 try:

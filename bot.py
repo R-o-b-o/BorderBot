@@ -1,9 +1,9 @@
 import logging
-import discord
+import discord, asyncio
 from discord.ext import commands
-import asyncio
 from datetime import datetime
-import fileHandler, config
+from utils import fileHandler
+import config
 
 bot = commands.Bot(command_prefix=config.prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True)
 
