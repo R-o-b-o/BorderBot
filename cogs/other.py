@@ -19,8 +19,8 @@ class Other(commands.Cog):
 
     @commands.command(name='feedback', description="Give feedback to improve the bot's functionality", aliases=['question'], usage="Feedback-Goes-Here")
     @commands.cooldown(5,600,commands.BucketType.guild)
-    async def feedback(self, ctx, feedback=""):
-        if feedback == "":
+    async def feedback(self, ctx, *, feedback):
+        if feedback is None:
             if random.randint(0, 2) == 0:
                 await ctx.send("😡, It's blank you NONCE!")
             else:
