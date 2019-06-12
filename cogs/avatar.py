@@ -18,7 +18,7 @@ class Avatar(commands.Cog):
         if str(member.avatar_url).endswith(".gif?size=1024"):
             url = member.avatar_url
         
-        if random.randint(0, 5) == 0:
+        if random.randint(0, 5) == 0 and ctx.me.guild_permissions.manage_webhooks:
             embed=discord.Embed(description=f"[Avatar Link]({url})", color=0xAD1457)
             embed.set_thumbnail(url=url)
             embed.set_image(url=url)

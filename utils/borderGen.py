@@ -128,19 +128,19 @@ def GenerateWithTexture(filepath, texturepath, size):
 def GenerateGif(filepath, color, size):
     imageGif = Image.open(filepath)
     
-    sideLength = imageGif.width
+    imageRing = Image.new('RGBA', (2048, 2048), color=color)
 
-    r = sideLength / 2 * (1-size)
-    x = sideLength / 2
+    midp = imageRing.width / 2
+    r = midp * (1-size)
     
-    imageRing = Image.new('RGBA', imageGif.size, color=color)
+    draw = ImageDraw.Draw(imageRing)
     
+    draw.ellipse((midp-r, midp-r, midp+r, midp+r), fill=(0,0,0,0))
+    imageRing.thumbnail(imageGif.size, Image.LANCZOS)
+
     frames = []
     for frame in ImageSequence.Iterator(imageGif):
         
-        draw = ImageDraw.Draw(imageRing)
-        draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
-
         frame = frame.convert('RGBA')
         frame.paste(imageRing, (0, 0), imageRing)
         
@@ -154,17 +154,17 @@ def GenerateGifWithTexture(filepath, texturepath, size):
     imageGif = Image.open(filepath)
     imageRing = Image.open(texturepath)
 
-    sideLength = imageGif.width
-
-    r = sideLength / 2 * (1-size)
-    x = sideLength / 2
+    x = imageGif.width / 2
+    r = x * (1-size)
+    
     imageRing = imageRing.resize(imageGif.size)
     imageRing = imageRing.convert("RGBA")
+
+    draw = ImageDraw.Draw(imageRing)
+    draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
     
     frames = []
     for frame in ImageSequence.Iterator(imageGif):
-        draw = ImageDraw.Draw(imageRing)
-        draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
 
         frame = frame.convert('RGBA')
         frame.paste(imageRing, (0, 0), imageRing)
