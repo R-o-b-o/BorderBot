@@ -89,6 +89,19 @@ class Other(commands.Cog):
                 await ctx.send(f"Successfully reloaded the cog **{cog}**.")
             except:
                 await ctx.send(f"Error reloading the cog **{cog}**.")
+    
+    @commands.is_owner()
+    @commands.command(name='sudo', hidden=True)
+    async def sudo(self, ctx, member: discord.Member, *, msg):
+        webhook = await ctx.channel.create_webhook(name="sudo")
+        await webhook.send(content=msg, username=member.name, avatar_url=member.avatar_url)
+        await webhook.delete()
+
+        message = ctx.message
+        message.author = member
+        message.content = msg
+        ctx = await self.bot.get_context(message)
+        await self.bot.invoke(ctx)
 
 def setup(bot):
     bot.add_cog(Other(bot))

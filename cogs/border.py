@@ -16,6 +16,11 @@ async def send_preview_webhook(ctx, fileMessage, messageContent):
         else:
             await ctx.send("If you want the preview, use this command in a server")
 
+def get_extension(filepath):
+    if filepath.endswith(".gif"):
+        return ".gif"
+    return ".png"
+
 class Border(commands.Cog):
     
     def __init__(self, bot):
@@ -47,9 +52,10 @@ class Border(commands.Cog):
         texturepath = "textures/" + random.choice(os.listdir("textures/"))
 
         filepath = await fileHandler.downloadAvatar(ctx.author)
+
         fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
 
-        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + " borderTextured.png"))
+        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + f" borderTextured{get_extension(filepath)}"))
         await send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")
 
     @commands.command(name='border', description='Add a single color border to your avatar', usage="(color) (decimal between 0 - 1) [defaults to size 0.1 and the most occuring color]")
@@ -71,15 +77,11 @@ class Border(commands.Cog):
         except ValueError:
             await ctx.send("I could not find color: **%s**\nFor the list of possible color names: https://www.w3schools.com/colors/colors_names.asp" % color)
             return
-        
-        extension = ".png"
-        if filepath.endswith(".gif"):
-            extension = ".gif"
 
         processTime = math.trunc((timer() - startTime) * 1000)
 
         startTime = timer()
-        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + extension))
+        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + get_extension(filepath)))
         uploadTime = math.trunc((timer() - startTime) * 1000)
 
         messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
@@ -106,11 +108,8 @@ class Border(commands.Cog):
         processTime = math.trunc((timer() - startTime) * 1000)
         startTime = timer()
         
-        extension = ".png"
-        if filepath.endswith(".gif"):
-            extension = ".gif"
             
-        fileMessage = await ctx.send(file=discord.File(fileBytes, filename="Textured" + "-" + str(size) + extension))
+        fileMessage = await ctx.send(file=discord.File(fileBytes, filename="Textured" + "-" + str(size) + get_extension(filepath)))
         uploadTime = math.trunc((timer() - startTime) * 1000)
 
         messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)

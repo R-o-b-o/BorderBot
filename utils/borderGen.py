@@ -170,7 +170,10 @@ def GenerateGifWithTexture(filepath, texturepath, size):
         frame.paste(imageRing, (0, 0), imageRing)
         
         frames.append(frame)
-    frames[0].save(filepath, save_all=True, append_images=frames[1:])
+    imageBytes = BytesIO()
+    frames[0].save(imageBytes, format="gif", save_all=True, append_images=frames[1:])
+    imageBytes.seek(0)
+    return imageBytes
 
 def GetImageBytes(image, format):
     imageBytes = BytesIO()
