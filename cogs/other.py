@@ -102,6 +102,7 @@ class Other(commands.Cog):
         message.content = msg
         ctx = await self.bot.get_context(message)
         await self.bot.invoke(ctx)
+        await ctx.message.delete()
 
 def setup(bot):
     bot.add_cog(Other(bot))
