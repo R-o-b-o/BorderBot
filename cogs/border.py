@@ -155,7 +155,7 @@ class Border(commands.Cog):
         while not timedOut:
 
             def check(m):
-                message = m.content.replace(" ", "").lower()
+                message = m.content.replace(" ", "").replace(self.bot.command_prefix, "").lower()
                 return m.author == ctx.author and (message.startswith("size=") or message.startswith("color=") or message.startswith("texture=") or message=="close" or message=="save")
                 
             try:
@@ -165,7 +165,7 @@ class Border(commands.Cog):
                 timedOut = True
 
             try:
-                responseMessageContent = responseMessage.content.replace(" ", "").lower()
+                responseMessageContent = responseMessage.content.replace(" ", "").replace(self.bot.command_prefix, "").lower()
                 if responseMessageContent.startswith("size="):
                     size = float(responseMessageContent.replace("size=", ""))
                 elif responseMessageContent.startswith("color="):
