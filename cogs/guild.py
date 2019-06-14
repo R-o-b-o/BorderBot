@@ -22,7 +22,7 @@ class Guild(commands.Cog):
             color = borderGen.GetMostFrequentColor(filepath)
         
         try:
-            fileBytes = borderGen.GenerateBasic(filepath, color, size)
+            fileBytes = await borderGen.GenerateBasic(filepath, color, size)
         except ValueError:
             await ctx.send("I could not find color: **%s**\nFor the list of possible color names: https://www.w3schools.com/colors/colors_names.asp" % color)
             return
