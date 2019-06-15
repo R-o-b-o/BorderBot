@@ -62,8 +62,8 @@ class Avatar(commands.Cog):
             reaction, _ = await self.bot.wait_for('reaction_add', timeout=30, check=check)
 
             if str(reaction.emoji) == '☑':
-                if isinstance(ctx.channel, discord.abc.GuildChannel):
-                    await reactionMessage.edit(content="Dmed previous avatars 🖼!")
+                await reactionMessage.edit(content="Dmed previous avatars 🖼!")
+                await reactionMessage.clear_reactions()
                 files = [discord.File(filepath) for filepath in filepaths]
                 for i in range(0, len(files), 10):
                     await ctx.author.send(files=files[i:i+10])
