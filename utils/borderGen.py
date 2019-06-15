@@ -38,7 +38,7 @@ def GetDominantColors(filepath, numColors):
     return GetImageBytes(imageColors, "png")
 
 @sync_to_async
-def GetavatarHistoryImage(filepaths):
+def GetAvatarHistoryImage(filepaths):
     sideLength = math.ceil(math.sqrt(len(filepaths)))
 
     imageHistory = Image.new("RGBA", (3000, 3000))

@@ -48,7 +48,7 @@ class Avatar(commands.Cog):
         for file in os.listdir(filepath):
             filepaths.append(filepath + file)
 
-        fileBytes = await borderGen.GetavatarHistoryImage(filepaths)
+        fileBytes = await borderGen.GetAvatarHistoryImage(filepaths)
         await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms", file=discord.File(fileBytes, filename="history.png"))
 
         reactionMessage = await ctx.send("Would you like me to dm you these individually?")
