@@ -1,12 +1,8 @@
 import discord
 from discord.ext import commands
-from timeit import default_timer as timer
-import math, random, os, asyncio
+import asyncio
 from utils import fileHandler, borderGen
 import config
-
-async def hasManageGuild(ctx):
-    return ctx.author.guild_permissions.manage_guild
 
 class Guild(commands.Cog):
     
@@ -14,7 +10,7 @@ class Guild(commands.Cog):
         self.bot = bot
 
     @commands.command(name="guildBorder")
-    @commands.check(hasManageGuild)
+    @commands.has_permissions(manage_guild=True)
     async def guildBorder(self, ctx, color="default", size : float=0.1):
         filepath = await fileHandler.downloadGuildIcon(ctx.guild)
         
@@ -51,7 +47,7 @@ class Guild(commands.Cog):
         await reactionMessage.clear_reactions()
     
     @commands.command(name="guildIconReset")
-    @commands.check(hasManageGuild)
+    @commands.has_permissions(manage_guild=True)
     async def guildIconReset(self, ctx):
         await ctx.guild.edit(icon = await fileHandler.getFileBytesFromFile(f"guilds/{ctx.guild.id}.{config.imageFormat}"))
         await ctx.message.add_reaction("☑")
