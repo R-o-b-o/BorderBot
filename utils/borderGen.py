@@ -39,17 +39,19 @@ def GetDominantColors(filepath, numColors):
 
 @sync_to_async
 def GetAvatarHistoryImage(filepaths):
-    sideLength = math.ceil(math.sqrt(len(filepaths)))
+    AvWidth = math.ceil(math.sqrt(len(filepaths)))
+    Avheight = math.ceil(len(filepaths) / AvWidth)
 
-    imageHistory = Image.new("RGBA", (3000, 3000))
-    width = math.trunc(imageHistory.width / sideLength)
-    height = math.trunc(imageHistory.height / sideLength)
+    imageHistory = Image.new("RGBA", (3000, math.ceil(3000 * Avheight/AvWidth)))
+    width = math.trunc(imageHistory.width / AvWidth)
+    height = math.trunc(imageHistory.height / Avheight)
 
     for i in range(0, len(filepaths)):
         image = Image.open(filepaths[i])
         #image = image.convert("RGB")
         image = image.resize((width, height))
-        imageHistory.paste(image, ((i % sideLength) * width, height * math.trunc(i / sideLength)))
+
+        imageHistory.paste(image, ((i % AvWidth) * width, height * math.trunc(i / AvWidth)))
 
     return GetImageBytes(imageHistory, "webp")
 

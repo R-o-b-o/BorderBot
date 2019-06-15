@@ -59,7 +59,7 @@ class Avatar(commands.Cog):
             return user == ctx.author
 
         try:
-            reaction, _ = await self.bot.wait_for('reaction_add', timeout=30, check=check)
+            reaction, _ = await self.bot.wait_for('reaction_add', timeout=20, check=check)
 
             if str(reaction.emoji) == '☑':
                 await reactionMessage.edit(content="Dmed previous avatars 🖼!")
