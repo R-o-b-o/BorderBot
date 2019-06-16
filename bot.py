@@ -29,6 +29,9 @@ async def on_command_error(ctx, error):
     elif isinstance(error, discord.errors.Forbidden):
         await ctx.send("I don't have sufficient permissions for that command.")
     
+    elif isinstance(error, discord.errors.HTTPException):
+        await ctx.send("The file is too large for me to send, I can only deal with avatars under 8MB.")
+
     else:
         await ctx.send(f"Something went wrong, consider reading the **{bot.command_prefix}help {ctx.invoked_with}**")
 
