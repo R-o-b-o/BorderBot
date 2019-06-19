@@ -8,7 +8,7 @@ prefix =">"
 imageFormat ="webp" #the static image format that the bot downloads and uploads
 maxSize = (1024, 1024) #the maximum image size for the border image
 
-cogs = [f'cogs.{cog}' for cog in ['avatar', 'border', 'other', 'guild']]
+cogs = [f'cogs.{cog}' for cog in ['avatar', 'border', 'other', 'guild', 'update']]
 
 filepaths = ["avatars", "textures", "logs", "guilds"]
 
