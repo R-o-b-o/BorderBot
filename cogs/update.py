@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 import json
 
-token = '575181ca402dbf1c95ff9f286a4e44d0bc52189f5b4b260953e340fc6e3c5dc02ca61333a2b476df0c4e79828bbce24168e6280b765af5fd5f90c5ee4482f443xxx'
+token = '575181ca402dbf1c95ff9f286a4e44d0bc52189f5b4b260953e340fc6e3c5dc02ca61333a2b476df0c4e79828bbce24168e6280b765af5fd5f90c5ee4482f443'
 # discord.py (rewrite) and Python 3.6+
 # Cog example to update divinediscordbots server count
 # You have to replace 'xxx' with your token
