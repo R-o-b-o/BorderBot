@@ -27,7 +27,7 @@ class Border(commands.Cog):
         self.bot = bot
 
     @commands.command(name='random', description='Generate a border with random parameters', usage="number of images to generate (max 5)", aliases=['randomBorder'])
-    @commands.cooldown(5,30,commands.BucketType.guild)
+    @commands.cooldown(1,10,commands.BucketType.guild)
     async def random_command(self, ctx, times : int=1):
         if  (times <= 5):
             await ctx.channel.trigger_typing()
