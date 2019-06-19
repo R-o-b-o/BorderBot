@@ -1,5 +1,5 @@
 import logging
-import discord, asyncio
+import discord, asyncio, json, aiohttp
 from discord.ext import commands
 from datetime import datetime
 from utils import fileHandler
@@ -12,6 +12,7 @@ async def on_ready():
     #bot.remove_command('help')
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     bot.loop.create_task(log_guild_stats())
+    await update_divinebotlist()
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
 @bot.event
@@ -47,6 +48,11 @@ async def on_command_completion(ctx):
 @bot.event
 async def on_guild_join(ctx):
     await bot.get_user(344270500987404288).send("BorderBot has joined a new server! ㊗")
+    await update_divinebotlist()
+
+@bot.event
+async def on_guild_remove(self, guild): 
+    await update_divinebotlist()
 
 async def log_guild_stats():
     while True:
@@ -58,6 +64,23 @@ async def log_guild_stats():
         guildLogger.info("%d %d" % (len(guilds), users))
 
         await asyncio.sleep(3600)
+
+async def update_divinebotlist():
+    if config.ddblToken is not None:
+        async with aiohttp.ClientSession() as session:
+            guild_count = len(bot.guilds)
+            payload = json.dumps({
+            'server_count': guild_count
+            })
+
+            headers = {
+                'authorization': config.ddblToken,
+                'content-type': 'application/json'
+            }
+
+            url = 'https://divinediscordbots.com/bot/{}/stats'.format(bot.user.id)
+            async with session.post(url, data=payload, headers=headers) as resp:
+                print('divinediscordbots statistics returned {} for {}'.format(resp.status, payload))
 
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
