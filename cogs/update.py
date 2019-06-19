@@ -1,5 +1,6 @@
 import asyncio
 import aiohttp
+from discord.ext import commands
 import json
 
 token = '575181ca402dbf1c95ff9f286a4e44d0bc52189f5b4b260953e340fc6e3c5dc02ca61333a2b476df0c4e79828bbce24168e6280b765af5fd5f90c5ee4482f443'
@@ -7,7 +8,7 @@ token = '575181ca402dbf1c95ff9f286a4e44d0bc52189f5b4b260953e340fc6e3c5dc02ca6133
 # Cog example to update divinediscordbots server count
 # You have to replace 'xxx' with your token
 
-class Update: 
+class Update(commands.Cog): 
 
     def __init__(self, bot):
         self.bot = bot 
