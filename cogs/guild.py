@@ -10,6 +10,7 @@ class Guild(commands.Cog):
         self.bot = bot
 
     @commands.command(name="guildBorder")
+    @commands.cooldown(2,10,commands.BucketType.guild)
     @commands.has_permissions(manage_guild=True)
     async def guildBorder(self, ctx, color="default", size : float=0.1):
         filepath = await fileHandler.downloadGuildIcon(ctx.guild)

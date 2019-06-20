@@ -52,6 +52,7 @@ async def on_guild_join(ctx):
 
 @bot.event
 async def on_guild_remove(self, guild): 
+    await bot.get_user(344270500987404288).send("BorderBot has left a server!")
     await update_divinebotlist()
 
 async def log_guild_stats():

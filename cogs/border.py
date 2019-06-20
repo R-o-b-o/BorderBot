@@ -29,7 +29,7 @@ class Border(commands.Cog):
     @commands.command(name='random', description='Generate a border with random parameters', usage="number of images to generate (max 5)", aliases=['randomBorder'])
     @commands.cooldown(1,10,commands.BucketType.guild)
     async def random_command(self, ctx, times : int=1):
-        if  (times <= 5):
+        if  (times <= 3):
             await ctx.channel.trigger_typing()
             startTime = timer()
             
@@ -42,7 +42,7 @@ class Border(commands.Cog):
                 await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
             await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms")
         else:
-            await ctx.send("There is a maximun of 5, *sorry*")
+            await ctx.send("There is a maximun of 3, *sorry*")
 
     @commands.command(name='randomTexture', description='Generate a border with a random texture')
     @commands.cooldown(5,30,commands.BucketType.guild)
