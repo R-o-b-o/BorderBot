@@ -110,7 +110,7 @@ async def update_botlistspace():
 
             url = 'https://api.botlist.space/v1/bots/:{}'.format(bot.user.id)
             async with session.post(url, data=payload, headers=headers) as resp:
-                print('botlistspace statistics returned {} for {}'.format(resp.code, payload))
+                print('botlistspace statistics returned {} for {}'.format(resp.status, payload))
 
 
 fileHandler.CreateFolders()
