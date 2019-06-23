@@ -46,14 +46,22 @@ async def on_command_completion(ctx):
     commandLogger.info(ctx.command.name)
 
 @bot.event
-async def on_guild_join(ctx):
-    await bot.get_user(344270500987404288).send("BorderBot has joined a new server! ㊗")
+async def on_guild_join(guild):
+    embed = discord.Embed(title="Joined server", colour=discord.Colour(0x42f492), description=f"**{guild.name}**", timestamp=datetime.now())
+    embed.set_thumbnail(url=guild.icon_url)
+    embed.add_field(name="Members", value=len(guild.members))
+
     await update_divinebotlist()
+    await bot.get_channel(574923973704286208).send(embed = embed)
 
 @bot.event
-async def on_guild_remove(self, guild): 
-    await bot.get_user(344270500987404288).send("BorderBot has left a server!")
+async def on_guild_remove(guild): 
+    embed = discord.Embed(title="Left server", colour=discord.Colour(0xf43c70), description=f"**{guild.name}**", timestamp=datetime.now())
+    embed.set_thumbnail(url=guild.icon_url)
+    embed.add_field(name="Members", value=len(guild.members))
+
     await update_divinebotlist()
+    await bot.get_channel(574923973704286208).send(embed = embed)
 
 async def log_guild_stats():
     while True:
