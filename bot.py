@@ -108,7 +108,7 @@ async def update_botlistspace():
                 'content-type': 'application/json'
             }
 
-            url = 'https://api.botlist.space/v1/bots/:{}'.format(bot.user.id)
+            url = 'https://api.botlist.space/v1/bots/{}'.format(bot.user.id)
             async with session.post(url, data=payload, headers=headers) as resp:
                 print('botlistspace statistics returned {} for {}'.format(resp.status, payload))
 
