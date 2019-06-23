@@ -104,7 +104,7 @@ async def update_botlistspace():
             })
 
             headers = {
-                'authorization': config.ddblToken,
+                'authorization': config.blsToken,
                 'content-type': 'application/json'
             }
 
