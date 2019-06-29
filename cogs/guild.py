@@ -19,7 +19,7 @@ class Guild(commands.Cog):
             color = borderGen.GetMostFrequentColor(filepath)
         
         try:
-            fileBytes = await borderGen.GenerateBasic(filepath, color, size)
+            fileBytes = await borderGen.GenerateBasic(filepath, color, size, imageFormat="png")
         except ValueError:
             await ctx.send("I could not find color: **%s**\nFor the list of possible color names: https://www.w3schools.com/colors/colors_names.asp" % color)
             return
@@ -50,7 +50,7 @@ class Guild(commands.Cog):
     @commands.command(name="guildIconReset")
     @commands.has_permissions(manage_guild=True)
     async def guildIconReset(self, ctx):
-        await ctx.guild.edit(icon = await fileHandler.getFileBytesFromFile(f"guilds/{ctx.guild.id}.{config.imageFormat}"))
+        await ctx.guild.edit(icon = await fileHandler.getFileBytesFromFile(f"guilds/{ctx.guild.id}.png"))
         await ctx.message.add_reaction("☑")
         
 
