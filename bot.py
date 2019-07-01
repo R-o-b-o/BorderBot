@@ -12,6 +12,7 @@ async def on_ready():
     #bot.remove_command('help')
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     bot.loop.create_task(log_guild_stats())
+    bot.loop.create_task(update_botlists())
     await update_botlists()
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
@@ -51,7 +52,6 @@ async def on_guild_join(guild):
     embed.set_thumbnail(url=guild.icon_url)
     embed.add_field(name="Members", value=len(guild.members))
 
-    await update_botlists()
     await bot.get_channel(574923973704286208).send(embed = embed)
 
 @bot.event
@@ -60,7 +60,6 @@ async def on_guild_remove(guild):
     embed.set_thumbnail(url=guild.icon_url)
     embed.add_field(name="Members", value=len(guild.members))
 
-    await update_botlists()
     await bot.get_channel(574923973704286208).send(embed = embed)
 
 async def log_guild_stats():
@@ -75,8 +74,15 @@ async def log_guild_stats():
         await asyncio.sleep(3600)
 
 async def update_botlists():
-    await update_divinebotlist()
-    await update_botlistspace()
+    guild_count = len(bot.guilds)
+
+    while True:
+        if guild_count != len(bot.guilds):
+            guild_count = len(bot.guilds)
+            await update_divinebotlist()
+            await update_botlistspace()
+            
+        await asyncio.sleep(3600)
 
 async def update_divinebotlist():
     if config.ddblToken is not None:
@@ -93,7 +99,7 @@ async def update_divinebotlist():
 
             url = 'https://divinediscordbots.com/bot/{}/stats'.format(bot.user.id)
             async with session.post(url, data=payload, headers=headers) as resp:
-                print('divinediscordbots statistics returned {} for {}'.format(resp.status, payload))
+                botListLogger.info('divinediscordbots statistics returned {} for {}'.format(resp.status, payload))
 
 async def update_botlistspace():
     if config.blsToken is not None:
@@ -110,12 +116,13 @@ async def update_botlistspace():
 
             url = 'https://api.botlist.space/v1/bots/{}'.format(bot.user.id)
             async with session.post(url, data=payload, headers=headers) as resp:
-                print('botlistspace statistics returned {} for {}'.format(resp.status, payload))
+                botListLogger.info('botlistspace statistics returned {} for {}'.format(resp.status, payload))
 
 
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
 commandLogger = fileHandler.setupLogger("comamnds", "logs/commands.log")
+botListLogger = fileHandler.setupLogger("botlists", "logs/botlists.log")
 for cog in config.cogs:
     bot.load_extension(cog) 
 
