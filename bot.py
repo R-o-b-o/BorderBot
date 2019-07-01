@@ -153,8 +153,8 @@ async def manage_votes():
         votes = await get_votes()
 
         for user in votes:
-            if user not in users:
-                userId = user["user"]["id"]
+            userId = user["user"]["id"]
+            if userId not in users:
                 users.append(userId)
                 try:
                     await send_showcase(userId)
