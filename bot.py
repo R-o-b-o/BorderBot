@@ -2,7 +2,7 @@ import logging
 import discord, asyncio, json, aiohttp
 from discord.ext import commands
 from datetime import datetime
-from utils import fileHandler
+from utils import fileHandler, borderGen
 import config
 
 bot = commands.Bot(command_prefix=config.prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True)
@@ -13,6 +13,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     bot.loop.create_task(log_guild_stats())
     bot.loop.create_task(update_botlists())
+    bot.loop.create_task(manage_votes())
     
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
@@ -60,7 +61,21 @@ async def on_guild_remove(guild):
     embed.set_thumbnail(url=guild.icon_url)
     embed.add_field(name="Members", value=len(guild.members))
 
-    await bot.get_channel(574923973704286208).send(embed = embed)
+    await bot.get_channel(574923973704286208).send(embed=embed)
+
+async def send_showcase(userId):
+    user = bot.get_user(int(userId))
+
+    color = borderGen.GetMostFrequentColor(await fileHandler.downloadAvatar(user))
+
+    url = user.avatar_url_as(format='png', size=1024)
+    if str(user.avatar_url).endswith(".gif?size=1024"):
+        url = user.avatar_url
+    
+    embed=discord.Embed(title=f"{str(user)}", color=int(color.replace('#', ''), 16))
+    embed.set_image(url=url)
+    
+    await bot.get_channel(588808593579573250).send(embed=embed)
 
 async def log_guild_stats():
     while True:
@@ -118,6 +133,32 @@ async def update_botlistspace():
             async with session.post(url, data=payload, headers=headers) as resp:
                 botListLogger.info('botlistspace statistics returned {} for {}'.format(resp.status, payload))
 
+async def get_votes():
+    if config.blsToken is not None:
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                'authorization': config.blsToken,
+                'content-type': 'application/json'
+            }
+
+            url = 'https://api.botlist.space/v1/bots/{}/upvotes'.format(559008680268267528)
+            async with session.get(url, headers=headers) as resp:
+                botListLogger.info('botlistspace upvotes fetched: {}'.format(resp.status))
+                return await resp.json()
+            
+async def manage_votes():
+    users = []
+
+    while True:
+        votes = await get_votes()
+
+        for user in votes:
+            if user not in users:
+                userId = user["user"]["id"]
+                await send_showcase(userId)
+                users.append(userId)
+
+        await asyncio.sleep(3600)
 
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
