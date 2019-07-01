@@ -97,7 +97,7 @@ async def update_botlists():
             await update_divinebotlist()
             await update_botlistspace()
             
-        await asyncio.sleep(3600)
+        await asyncio.sleep(600)
 
 async def update_divinebotlist():
     if config.ddblToken is not None:
@@ -158,7 +158,7 @@ async def manage_votes():
                 await send_showcase(userId)
                 users.append(userId)
 
-        await asyncio.sleep(3600)
+        await asyncio.sleep(300)
 
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
