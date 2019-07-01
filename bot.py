@@ -13,7 +13,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     bot.loop.create_task(log_guild_stats())
     bot.loop.create_task(update_botlists())
-    await update_botlists()
+    
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
 @bot.event
