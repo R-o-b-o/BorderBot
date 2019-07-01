@@ -155,7 +155,10 @@ async def manage_votes():
         for user in votes:
             if user not in users:
                 userId = user["user"]["id"]
-                await send_showcase(userId)
+                try:
+                    await send_showcase(userId)
+                except:
+                    pass
                 users.append(userId)
 
         await asyncio.sleep(300)
