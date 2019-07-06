@@ -15,5 +15,5 @@ cogs = [f'cogs.{cog}' for cog in ['avatar', 'border', 'other', 'guild', 'owner']
 
 filepaths = ["avatars", "textures", "logs", "guilds"]
 
-support_guild = 410488579140354049
+support_guild = 558000276284506113
 owner_id = 344270500987404288
