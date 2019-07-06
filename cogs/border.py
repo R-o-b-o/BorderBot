@@ -191,7 +191,7 @@ class Border(commands.Cog):
                 except:
                     pass
                 
-                imageMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
+                imageMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + get_extension(filepath)))
             except:
                 pass
         os.remove(filepath)
