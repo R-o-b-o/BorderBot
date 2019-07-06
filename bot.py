@@ -13,7 +13,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     bot.loop.create_task(log_guild_stats())
     bot.loop.create_task(update_botlists())
-    bot.loop.create_task(manage_votes())
+    #bot.loop.create_task(manage_votes())
     
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
@@ -46,6 +46,9 @@ async def on_user_update(before, after):
     if before.avatar != after.avatar:
         await fileHandler.downloadAvatar(before)
 
+        if after in bot.get_guild(config.support_guild).members:
+            send_showcase(after)
+
 @bot.event
 async def on_command_completion(ctx):
     commandLogger.info(ctx.command.name)
@@ -66,9 +69,7 @@ async def on_guild_remove(guild):
 
     await bot.get_channel(574923973704286208).send(embed=embed)
 
-async def send_showcase(userId):
-    user = bot.get_user(int(userId))
-
+async def send_showcase(user):
     color = borderGen.GetMostFrequentColor(await fileHandler.downloadAvatar(user))
 
     url = user.avatar_url_as(format='png', size=1024)
@@ -136,35 +137,35 @@ async def update_botlistspace():
             async with session.post(url, data=payload, headers=headers) as resp:
                 botListLogger.info('botlistspace statistics returned {} for {}'.format(resp.status, payload))
 
-async def get_votes():
-    if config.blsToken is not None:
-        async with aiohttp.ClientSession() as session:
-            headers = {
-                'authorization': config.blsToken,
-                'content-type': 'application/json'
-            }
+# async def get_votes():
+#     if config.blsToken is not None:
+#         async with aiohttp.ClientSession() as session:
+#             headers = {
+#                 'authorization': config.blsToken,
+#                 'content-type': 'application/json'
+#             }
 
-            url = 'https://api.botlist.space/v1/bots/{}/upvotes'.format(559008680268267528)
-            async with session.get(url, headers=headers) as resp:
-                botListLogger.info('botlistspace upvotes fetched: {}'.format(resp.status))
-                return await resp.json()
+#             url = 'https://api.botlist.space/v1/bots/{}/upvotes'.format(559008680268267528)
+#             async with session.get(url, headers=headers) as resp:
+#                 botListLogger.info('botlistspace upvotes fetched: {}'.format(resp.status))
+#                 return await resp.json()
             
-async def manage_votes():
-    users = []
+# async def manage_votes():
+#     users = []
 
-    while True:
-        votes = await get_votes()
+#     while True:
+#         votes = await get_votes()
 
-        for user in votes:
-            userId = user["user"]["id"]
-            if userId not in users:
-                users.append(userId)
-                try:
-                    await send_showcase(userId)
-                except:
-                    pass
+#         for user in votes:
+#             userId = user["user"]["id"]
+#             if userId not in users:
+#                 users.append(userId)
+#                 try:
+#                     await send_showcase(userId)
+#                 except:
+#                     pass
 
-        await asyncio.sleep(300)
+#         await asyncio.sleep(300)
 
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
