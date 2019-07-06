@@ -47,7 +47,7 @@ async def on_user_update(before, after):
         await fileHandler.downloadAvatar(before)
 
         if after in bot.get_guild(config.support_guild).members:
-            send_showcase(after)
+            await send_showcase(after)
 
 @bot.event
 async def on_command_completion(ctx):
