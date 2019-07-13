@@ -46,8 +46,13 @@ async def on_user_update(before, after):
     if before.avatar != after.avatar:
         await fileHandler.downloadAvatar(before)
 
-        if after in bot.get_guild(config.support_guild).members:
+        if (after in bot.get_guild(config.support_guild).members) and not(after.bot):
             await send_showcase(after)
+
+@bot.event
+async def on_member_join(member):
+    if member.guild == bot.get_guild(config.support_guild):
+        await member.add_roles(bot.get_guild(config.support_guild).get_role(569663447034494976))
 
 @bot.event
 async def on_command_completion(ctx):
