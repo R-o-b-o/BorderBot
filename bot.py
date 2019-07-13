@@ -44,7 +44,7 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_user_update(before, after):
     if before.avatar != after.avatar:
-        await fileHandler.downloadAvatar(before)
+        borderGen.ImageToStatic(await fileHandler.downloadAvatar(before))
 
         if (after in bot.get_guild(config.support_guild).members) and not(after.bot):
             await send_showcase(after)
