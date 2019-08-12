@@ -58,7 +58,7 @@ class Guild(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def endSlideShow(self, ctx):
         await sql.RemoveIconChanger(ctx.guild.id)
-        await fileHandler.clearFolder(ctx.guild.id)
+        fileHandler.clearFolder(ctx.guild.id)
         await ctx.send("`The slideshow feature has been disabled for this guild`")
 
     @commands.command(name="slideshow", description='Sets up a rotating guild icon', usage='(number of images) (interval time in hours)')

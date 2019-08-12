@@ -46,7 +46,7 @@ async def on_command_error(ctx, error):
         await ctx.send("This is a **owner** only command")
 
     else:
-        await ctx.send(f"Something went wrong, consider reading the **{await get_prefix(bot, ctx.message)}help {ctx.invoked_with}**")
+        await ctx.send(f"Something went wrong, consider reading the **{(await get_prefix(bot, ctx.message))[2]}help {ctx.invoked_with}**")
 
 @bot.event
 async def on_user_update(before, after):
