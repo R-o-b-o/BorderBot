@@ -49,6 +49,27 @@ async def downloadGuildIcon(guild):
     await downloadFromURL(filepath, str(url))
     return filepath
 
+async def setupSlideshow(guildId, urls):
+    filepath = f'guilds/{guildId}'
+    if not os.path.exists(filepath):
+        os.makedirs(filepath)
+
+    clearFolder(guildId)
+
+    for i in range(len(urls)): 
+        ext = (urls[i].split('.'))[-1]
+        await downloadFromURL(filepath + f'/{i}.{ext}', urls[i])
+
+def clearFolder(guildId):
+    for filepath in getFilepaths(f'guilds/{guildId}/'):
+        os.remove(filepath)
+
+def getFilepaths(filepath):
+    filepaths = []
+    for file in os.listdir(filepath):
+        filepaths.append(filepath + file)
+    return filepaths
+
 async def downloadTexture(filename, url):
     filepath = "textures/" + filename
     await downloadFromURL(filepath, url)

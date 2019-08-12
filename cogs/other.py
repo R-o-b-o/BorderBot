@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from timeit import default_timer as timer
 import math, random, os
-from utils import fileHandler
+from utils import fileHandler, sql
 import config
 
 class Other(commands.Cog):
@@ -63,20 +63,30 @@ class Other(commands.Cog):
         await ctx.send(statsMessage)
     
     @commands.command(name='invite', description="returns an invite link for the bot", aliases=['link'])
-    @commands.cooldown(1, 30,commands.BucketType.guild)
+    @commands.cooldown(1, 10,commands.BucketType.guild)
     async def invite(self, ctx):
         embed=discord.Embed(title="Bot Invite", description="https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=536996960", color=0xAD1457)
         await ctx.send(embed=embed)
     
     @commands.command(name='vote', aliases=['upvote'])
-    @commands.cooldown(1, 30,commands.BucketType.guild)
+    @commands.cooldown(1, 10,commands.BucketType.guild)
     async def vote(self, ctx):
         botListLinks = [("Divine Discord Bot List", "https://divinediscordbots.com/bot/559008680268267528/vote"), ('Botlist.Space', "https://botlist.space/bot/559008680268267528/upvote")]
         embed=discord.Embed(color=0xAD1457)
         for name, link in botListLinks:
             embed.add_field(name=name, value=link)
         
-        await ctx.send(embed=embed)    
+        await ctx.send(embed=embed)  
+
+    @commands.command(name='prefix', description="gets or changes the bot prefix")
+    @commands.cooldown(1, 10,commands.BucketType.guild)
+    async def prefix(self, ctx,  *, prefix='current'):
+        if prefix != "current" and ctx.author.guild_permissions.manage_guild:
+            await sql.ChangePrefix(ctx.guild.id, prefix)
+        else:
+            prefix = await sql.GetPrefixFromDb(ctx.guild.id)
+        
+        await ctx.send(f'The prefix is `{prefix}`')
 
 def setup(bot):
     bot.add_cog(Other(bot))

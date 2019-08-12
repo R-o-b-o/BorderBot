@@ -43,10 +43,9 @@ class Avatar(commands.Cog):
         await ctx.channel.trigger_typing()
         startTime = timer()
         
-        filepaths = []
-        filepath = "avatars/" + str(member.id) + "/"
-        for file in os.listdir(filepath):
-            filepaths.append(filepath + file)
+        _ = await fileHandler.downloadAvatar(member)
+
+        filepaths = fileHandler.getFilepaths("avatars/" + str(member.id) + "/")
 
         fileBytes = await borderGen.GetAvatarHistoryImage(filepaths)
         await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms", file=discord.File(fileBytes, filename="history.png"))

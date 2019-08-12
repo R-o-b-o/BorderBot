@@ -2,10 +2,17 @@ import logging
 import discord, asyncio, json, aiohttp
 from discord.ext import commands
 from datetime import datetime
-from utils import fileHandler, borderGen
+from utils import fileHandler, borderGen, sql
 import config
 
-bot = commands.Bot(command_prefix=config.prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True)
+async def get_prefix(bot, message):
+    if isinstance(message.channel, discord.abc.GuildChannel):
+        prefix = await sql.GetPrefixFromDb(message.guild.id) 
+    else:
+        prefix = config.prefix
+    return commands.when_mentioned_or(prefix)(bot, message)
+
+bot = commands.Bot(command_prefix=get_prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True)
 
 @bot.event
 async def on_ready():
@@ -13,8 +20,8 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     bot.loop.create_task(log_guild_stats())
     bot.loop.create_task(update_botlists())
-    #bot.loop.create_task(manage_votes())
     
+    await sql.AddGuilds(guild.id for guild in bot.guilds)
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
 @bot.event
@@ -39,11 +46,11 @@ async def on_command_error(ctx, error):
         await ctx.send("This is a **owner** only command")
 
     else:
-        await ctx.send(f"Something went wrong, consider reading the **{bot.command_prefix}help {ctx.invoked_with}**")
+        await ctx.send(f"Something went wrong, consider reading the **{await get_prefix(bot, ctx.message)}help {ctx.invoked_with}**")
 
 @bot.event
 async def on_user_update(before, after):
-    if before.avatar != after.avatar:
+    if before.avatar != after.avatar and before.avatar is not None:
         borderGen.ImageToStatic(await fileHandler.downloadAvatar(before))
 
         if (after in bot.get_guild(config.support_guild).members) and not(after.bot):
@@ -60,6 +67,8 @@ async def on_command_completion(ctx):
 
 @bot.event
 async def on_guild_join(guild):
+    await sql.AddGuild(guild.id)
+
     embed = discord.Embed(title="Joined server", colour=discord.Colour(0x42f492), description=f"**{guild.name}**", timestamp=datetime.now())
     embed.set_thumbnail(url=guild.icon_url)
     embed.add_field(name="Members", value=len(guild.members))
@@ -68,6 +77,8 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_guild_remove(guild): 
+    await sql.RemoveGuild(guild.id)
+
     embed = discord.Embed(title="Left server", colour=discord.Colour(0xf43c70), description=f"**{guild.name}**", timestamp=datetime.now())
     embed.set_thumbnail(url=guild.icon_url)
     embed.add_field(name="Members", value=len(guild.members))
@@ -87,7 +98,7 @@ async def send_showcase(user):
     await bot.get_channel(588808593579573250).send(embed=embed)
 
 async def log_guild_stats():
-    while True:
+    while not bot.is_closed():
         guilds = bot.guilds
         users = 0
         for guild in guilds:
@@ -100,7 +111,7 @@ async def log_guild_stats():
 async def update_botlists():
     guild_count = len(bot.guilds)
 
-    while True:
+    while not bot.is_closed():
         if guild_count != len(bot.guilds):
             guild_count = len(bot.guilds)
             await update_divinebotlist()
@@ -142,41 +153,13 @@ async def update_botlistspace():
             async with session.post(url, data=payload, headers=headers) as resp:
                 botListLogger.info('botlistspace statistics returned {} for {}'.format(resp.status, payload))
 
-# async def get_votes():
-#     if config.blsToken is not None:
-#         async with aiohttp.ClientSession() as session:
-#             headers = {
-#                 'authorization': config.blsToken,
-#                 'content-type': 'application/json'
-#             }
-
-#             url = 'https://api.botlist.space/v1/bots/{}/upvotes'.format(559008680268267528)
-#             async with session.get(url, headers=headers) as resp:
-#                 botListLogger.info('botlistspace upvotes fetched: {}'.format(resp.status))
-#                 return await resp.json()
-            
-# async def manage_votes():
-#     users = []
-
-#     while True:
-#         votes = await get_votes()
-
-#         for user in votes:
-#             userId = user["user"]["id"]
-#             if userId not in users:
-#                 users.append(userId)
-#                 try:
-#                     await send_showcase(userId)
-#                 except:
-#                     pass
-
-#         await asyncio.sleep(300)
-
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
 commandLogger = fileHandler.setupLogger("comamnds", "logs/commands.log")
 botListLogger = fileHandler.setupLogger("botlists", "logs/botlists.log")
 for cog in config.cogs:
     bot.load_extension(cog) 
+
+sql.CreateDB()
 
 bot.run(config.token)
