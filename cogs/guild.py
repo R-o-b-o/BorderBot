@@ -64,7 +64,7 @@ class Guild(commands.Cog):
     @commands.command(name="slideshow", description='Sets up a rotating guild icon', usage='(number of images) (interval time in hours)')
     @commands.has_permissions(manage_guild=True)
     async def slideShow(self, ctx, numImages : int, interval : int=24):
-        if numImages < 1 or interval < 1:
+        if numImages < 2 or interval < 1:
             await ctx.send("The interval time and number of images must be above 0")
             return
 
