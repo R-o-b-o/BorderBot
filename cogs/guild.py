@@ -76,10 +76,12 @@ class Guild(commands.Cog):
         for _ in range(numImages):    
             try:
                 responseMessage = await self.bot.wait_for('message', timeout=120, check=check)
+                attachments.append(responseMessage.attachments[0].url)
             except asyncio.TimeoutError:
                 await ctx.send("`You took too long, you must retry the command`")
-            attachments.append(responseMessage.attachments[0].url)
-
+                return
+        
+        await ctx.channel.trigger_typing()
         await fileHandler.setupSlideshow(ctx.guild.id, attachments)
         await sql.AddIconChanger(ctx.guild.id, interval)
 
