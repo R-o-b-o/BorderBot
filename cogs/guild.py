@@ -87,8 +87,11 @@ class Guild(commands.Cog):
 
         await ctx.send("The slideshow has been set up, use `endSlideshow` to end it")
 
-    async def UpdateGuild(self, guildId, imageBytes):   
-        await self.bot.get_guild(guildId).edit(icon = imageBytes)
+    async def UpdateGuild(self, guildId, imageBytes): 
+        try:  
+            await self.bot.get_guild(guildId).edit(icon = imageBytes)
+        except:
+            pass
 
     async def UpdateGuilds(self):
         await self.bot.wait_until_ready()
