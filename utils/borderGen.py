@@ -173,7 +173,7 @@ def GenerateGifWithTexture(filepath, texturepath, size):
             return imageBytes
 
 def ImageToStatic(filepath):
-    if filepath.endswith('.gif'):
+    if filepath.endswith('.gif') and os.path.isfile(filepath):
         with Image.open(filepath) as image:
             image.save(filepath.replace('gif', imageFormat))
         os.remove(filepath)     
