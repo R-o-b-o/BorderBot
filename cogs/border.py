@@ -17,9 +17,7 @@ async def send_preview_webhook(ctx, fileMessage, messageContent):
             await ctx.send("If you want the preview, use this command in a server")
 
 def get_extension(filepath):
-    if filepath.endswith(".gif"):
-        return ".gif"
-    return ".png"
+    return ".gif" if filepath.endswith(".gif") else ".png"
 
 class Border(commands.Cog):
     
@@ -53,7 +51,7 @@ class Border(commands.Cog):
 
         filepath = await fileHandler.downloadAvatar(ctx.author)
 
-        fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05)
+        fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05, colorSwap=True)
 
         fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + f" borderTextured{get_extension(filepath)}"))
         await send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")
@@ -196,6 +194,15 @@ class Border(commands.Cog):
                 pass
         os.remove(filepath)
 
+    @commands.command(name='colorswap', description="Use another avatar's color palette for your own", aliases=['palette', 'cs', 'colourswap'])
+    async def palette(self, ctx, member : discord.Member = None):
+        await ctx.channel.trigger_typing()
+        filepathUser = await fileHandler.downloadAvatar(ctx.author)
+        filepathOther = await fileHandler.downloadAvatar(member)
+
+        fileBytes = await self.bot.loop.run_in_executor(None, borderGen.ColorSwap, filepathUser, filepathOther)
+        file = discord.File(fileBytes, filename="palette"+ get_extension(filepathUser))
+        await ctx.send(file=file)
 
 def setup(bot):
     bot.add_cog(Border(bot))

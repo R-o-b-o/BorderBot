@@ -3,8 +3,24 @@ from io import BytesIO
 import config
 import math, random, os
 from asgiref.sync import sync_to_async
+from skimage import color
+import numpy as np
 
 imageFormat = config.imageFormat
+
+def ColorSwap(source, tar):
+    with Image.open(source) as sourceImage:
+        with Image.open(tar) as tarImage:
+            sourceLab = color.rgb2lab(np.array(sourceImage.convert('RGB')))
+            tarLab = color.rgb2lab(np.array(tarImage.convert('RGB')))
+            
+            dataS = np.asarray(sourceLab, dtype=float).reshape(np.multiply.reduce(sourceImage.size), 3)
+            dataT = np.asarray(tarLab, dtype=float).reshape(np.multiply.reduce(tarImage.size), 3)
+            
+            #dataS = np.add(np.multiply(np.divide(np.subtract(dataS, dataS.mean(axis=0)), dataS.std(axis=0)), dataT.std(axis=0)), dataT.mean(axis=0)).reshape(sourceImage.size[::-1]+(3,))
+            dataS = (((dataS - dataS.mean(axis=0)) / dataS.std(axis=0) * dataT.std(axis=0)) + dataT.mean(axis=0)).reshape(sourceImage.size[::-1]+(3,))
+            
+            return GetImageBytes(Image.fromarray(np.uint8(color.lab2rgb(dataS)*255)), imageFormat)
 
 def GetMostFrequentColor(filepath):
     with Image.open(filepath) as image:
@@ -18,7 +34,7 @@ def GetMostFrequentColor(filepath):
             if count > most_frequent_pixel[0]:
                 most_frequent_pixel = (count, color)
         
-        if most_frequent_pixel[1] == (255, 255, 255) or most_frequent_pixel[1] == (0, 0, 0):
+        if min(most_frequent_pixel[1]) > 235 or max(most_frequent_pixel[1]) < 20:
             most_frequent_pixel = random.choice(pixels)
 
         return '#%02x%02x%02x' % most_frequent_pixel[1]
@@ -98,13 +114,16 @@ def GenerateSquare(filepath, color, size, imageFormat=imageFormat):
         return GetImageBytes(imageAvatar, imageFormat)
 
 @sync_to_async
-def GenerateWithTexture(filepath, texturepath, size, imageFormat=imageFormat):
+def GenerateWithTexture(filepath, texturepath, size, imageFormat=imageFormat, colorSwap=False):
     if filepath.endswith(".gif"):
         return GenerateGifWithTexture(filepath, texturepath, size)
         
     with Image.open(filepath) as imageAvatar:
         with Image.open(texturepath) as imageRing:
             imageRing = imageRing.resize((2048, 2048))
+
+            if colorSwap: imageRing = Image.open(ColorSwap(GetImageBytes(imageRing, "bmp"), GetImageBytes(imageAvatar, "bmp")))
+
             x = imageRing.width / 2
             r = x * (1-size)
             
