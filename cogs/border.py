@@ -44,14 +44,15 @@ class Border(commands.Cog):
 
     @commands.command(name='randomTexture', description='Generate a border with a random texture')
     @commands.cooldown(5,30,commands.BucketType.guild)
-    async def randomTexture_command(self, ctx):
+    async def randomTexture_command(self, ctx, size : float=0):
         await ctx.channel.trigger_typing()
         startTime = timer()
         texturepath = "textures/" + random.choice(os.listdir("textures/"))
 
         filepath = await fileHandler.downloadAvatar(ctx.author)
 
-        fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, random.random() / 5 + 0.05, colorSwap=True)
+        if size == 0: size = random.random() / 5 + 0.05
+        fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, size, colorSwap=True)
 
         fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + f" borderTextured{get_extension(filepath)}"))
         await send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")

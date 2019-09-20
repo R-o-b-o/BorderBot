@@ -120,9 +120,12 @@ def GenerateWithTexture(filepath, texturepath, size, imageFormat=imageFormat, co
         
     with Image.open(filepath) as imageAvatar:
         with Image.open(texturepath) as imageRing:
+            if colorSwap: 
+                imageRing = imageRing.resize(imageAvatar.size, Image.LANCZOS)
+                imageRing = Image.open(ColorSwap(GetImageBytes(imageRing, "bmp"), GetImageBytes(imageAvatar, "bmp")))
+
             imageRing = imageRing.resize((2048, 2048))
 
-            if colorSwap: imageRing = Image.open(ColorSwap(GetImageBytes(imageRing, "bmp"), GetImageBytes(imageAvatar, "bmp")))
 
             x = imageRing.width / 2
             r = x * (1-size)
