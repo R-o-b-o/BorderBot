@@ -3,6 +3,7 @@ import aiohttp
 import os
 import config
 import logging
+from io import BytesIO
 
 imageFormat = config.imageFormat
 formatter = logging.Formatter('%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -102,3 +103,11 @@ async def downloadFromURL(filepath, url):
                 f = await aiofiles.open(filepath, mode='wb')
                 await f.write(await r.read())
                 await f.close()
+
+async def downloadFromURLToBytesIO(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as r:
+            if r.status == 200:
+                image = BytesIO()
+                image.write(await r.read())
+                return image

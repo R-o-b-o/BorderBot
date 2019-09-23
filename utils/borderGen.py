@@ -3,24 +3,26 @@ from io import BytesIO
 import config
 import math, random, os
 from asgiref.sync import sync_to_async
-from skimage import color
+from skimage.color import rgb2lab, lab2rgb
 import numpy as np
+import warnings
 
 imageFormat = config.imageFormat
 
 def ColorSwap(source, tar):
     with Image.open(source) as sourceImage:
         with Image.open(tar) as tarImage:
-            sourceLab = color.rgb2lab(np.array(sourceImage.convert('RGB')))
-            tarLab = color.rgb2lab(np.array(tarImage.convert('RGB')))
+            sourceLab = rgb2lab(np.array(sourceImage.convert('RGB')))
+            tarLab = rgb2lab(np.array(tarImage.convert('RGB')))
             
             dataS = np.asarray(sourceLab, dtype=float).reshape(np.multiply.reduce(sourceImage.size), 3)
             dataT = np.asarray(tarLab, dtype=float).reshape(np.multiply.reduce(tarImage.size), 3)
             
             #dataS = np.add(np.multiply(np.divide(np.subtract(dataS, dataS.mean(axis=0)), dataS.std(axis=0)), dataT.std(axis=0)), dataT.mean(axis=0)).reshape(sourceImage.size[::-1]+(3,))
             dataS = (((dataS - dataS.mean(axis=0)) / dataS.std(axis=0) * dataT.std(axis=0)) + dataT.mean(axis=0)).reshape(sourceImage.size[::-1]+(3,))
-            
-            return GetImageBytes(Image.fromarray(np.uint8(color.lab2rgb(dataS)*255)), imageFormat)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                return GetImageBytes(Image.fromarray(np.uint8(lab2rgb(dataS)*255)), imageFormat)
 
 def GetMostFrequentColor(filepath):
     with Image.open(filepath) as image:

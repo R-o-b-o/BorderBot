@@ -199,7 +199,10 @@ class Border(commands.Cog):
     async def palette(self, ctx, member : discord.Member = None):
         await ctx.channel.trigger_typing()
         filepathUser = await fileHandler.downloadAvatar(ctx.author)
-        filepathOther = await fileHandler.downloadAvatar(member)
+        if member is None:
+            filepathOther = await fileHandler.downloadFromURLToBytesIO(ctx.message.attachments[0].url)
+        else:
+            filepathOther = await fileHandler.downloadAvatar(member)
 
         fileBytes = await self.bot.loop.run_in_executor(None, borderGen.ColorSwap, filepathUser, filepathOther)
         file = discord.File(fileBytes, filename="palette"+ get_extension(filepathUser))
