@@ -58,7 +58,7 @@ class Other(commands.Cog):
                 numAvatars += 1
         
         statsMessage = ("I am in **%d** servers with **%d** users\n"
-        "**%d** commands have been made\n"
+        "**%d** commands have been executed\n"
         "I also have **%d** avatars stored for **%d** users") % (len(guilds), users, commands, numAvatars, numUsers)
         await ctx.send(statsMessage)
     

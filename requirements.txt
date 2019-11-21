@@ -1,4 +1,4 @@
-discord.py==1.2.3
+discord.py==1.2.5
 aiofiles==0.4.0
 Pillow==6.1.0
 python-dotenv==0.10.3
