@@ -10,7 +10,7 @@ class Guild(commands.Cog):
         self.bot = bot
         self.bot.loop.create_task(self.UpdateGuilds())
 
-    @commands.command(name="guildBorder")
+    @commands.command(name="guildBorder", hidden=True)
     @commands.cooldown(2,10,commands.BucketType.guild)
     @commands.has_permissions(manage_guild=True)
     async def guildBorder(self, ctx, color="default", size : float=0.1):
@@ -48,20 +48,20 @@ class Guild(commands.Cog):
         
         await reactionMessage.clear_reactions()
     
-    @commands.command(name="guildIconReset")
+    @commands.command(name="guildIconReset", hidden=True)
     @commands.has_permissions(manage_guild=True)
     async def guildIconReset(self, ctx):
         await ctx.guild.edit(icon = await fileHandler.getFileBytesFromFile(f"guilds/{ctx.guild.id}.png"))
         await ctx.message.add_reaction("☑")
     
-    @commands.command(name="endSlideshow")
+    @commands.command(name="endSlideshow", description="End guild icon slideshow")
     @commands.has_permissions(manage_guild=True)
     async def endSlideShow(self, ctx):
         await sql.RemoveIconChanger(ctx.guild.id)
         fileHandler.clearFolder(ctx.guild.id)
         await ctx.send("`The slideshow feature has been disabled for this guild`")
 
-    @commands.command(name="slideshow", description='Sets up a rotating guild icon', usage='(number of images) (interval time in hours)')
+    @commands.command(name="slideshow", description='Set up a rotating guild icon', usage='(# of images) (interval time in hours)')
     @commands.has_permissions(manage_guild=True)
     async def slideShow(self, ctx, numImages : int, interval : int=24):
         if numImages < 2 or interval < 1:

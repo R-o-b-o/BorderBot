@@ -7,7 +7,7 @@ import config
 
 async def get_prefix(bot, message):
     if isinstance(message.channel, discord.abc.GuildChannel):
-        prefix = await sql.GetPrefixFromDb(message.guild.id) 
+        prefix = await sql.GetPrefixFromDb(message.guild.id) or config.prefix
     else:
         prefix = config.prefix
     return commands.when_mentioned_or(prefix)(bot, message)
@@ -16,7 +16,11 @@ bot = commands.Bot(command_prefix=get_prefix, description="A bot to add colorful
 
 @bot.event
 async def on_ready():
-    #bot.remove_command('help')
+    bot.remove_command('help')
+
+    for cog in config.cogs:
+        bot.load_extension(cog)
+
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
     bot.loop.create_task(log_guild_stats())
     bot.loop.create_task(update_botlists())
@@ -63,7 +67,7 @@ async def on_member_join(member):
 
 @bot.event
 async def on_command_completion(ctx):
-    commandLogger.info(ctx.command.name)
+    commandLogger.info(f"{ctx.command.name} {ctx.author.id}")
 
 @bot.event
 async def on_guild_join(guild):
@@ -156,9 +160,7 @@ async def update_botlistspace():
 fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
 commandLogger = fileHandler.setupLogger("comamnds", "logs/commands.log")
-botListLogger = fileHandler.setupLogger("botlists", "logs/botlists.log")
-for cog in config.cogs:
-    bot.load_extension(cog) 
+botListLogger = fileHandler.setupLogger("botlists", "logs/botlists.log") 
 
 sql.CreateDB()
 

@@ -9,7 +9,7 @@ class Avatar(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='avatar', description='Gets you a link to someones avatar', aliases=['pfp'], usage="@user")
+    @commands.command(name='avatar', description="Get a user's avatar", aliases=['pfp'], usage="[@user]")
     async def avatar(self, ctx, member : discord.Member = None):
         if member is None:
             member = ctx.author
@@ -35,7 +35,7 @@ class Avatar(commands.Cog):
         
             await ctx.send(embed=embed)
     
-    @commands.command(name='history', description='See a history of your avatars', aliases=['avatars'])
+    @commands.command(name='history', description='See all previous avatars', aliases=['avatars'])
     @commands.cooldown(2,300,commands.BucketType.user)
     async def history(self, ctx, member : discord.Member = None):
         if member is None:
@@ -71,7 +71,7 @@ class Avatar(commands.Cog):
         except asyncio.TimeoutError:
             await reactionMessage.delete()
     
-    @commands.command(name='randomAvatar', description='Receive a random avatar')
+    @commands.command(name='randomAvatar', description='View a random avatar')
     @commands.cooldown(10,30,commands.BucketType.user)
     async def randomAvatar(self, ctx):
         filepaths = []
@@ -80,12 +80,12 @@ class Avatar(commands.Cog):
                 filepaths.append(os.path.join(path, name))
         await ctx.send(file=discord.File(random.choice(filepaths)))
 
-    @commands.command(name='avatarColors', description='Gets you n dominant colors', aliases=['avatarcolours', 'colors', 'colours'], usage="(number of colors)")
+    @commands.command(name='avatarColors', description='Get n most dominant avatar colors', aliases=['avatarcolours', 'colors', 'colours'], usage="(# of colors)")
     @commands.cooldown(10,30)
     async def avatarColors(self, ctx, numColors = 5):
         filepath = await fileHandler.downloadAvatar(ctx.author)
-        fileBytes = borderGen.GetDominantColors(filepath, numColors)
-        await ctx.send(file=discord.File(fileBytes, filename="colors.png"))
+        fileBytes, colors = borderGen.GetDominantColors(filepath, numColors)
+        await ctx.send("```css\n"+', '.join(colors)+"\n```", file=discord.File(fileBytes, filename="colors.png"))
 
 
 def setup(bot):

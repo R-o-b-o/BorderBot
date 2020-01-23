@@ -7,11 +7,11 @@ token = env.get('TOKEN')
 ddblToken = env.get('DDBLTOKEN')
 blsToken = env.get('BLSTOKEN')
 
-prefix =">"
+prefix ="b!"
 imageFormat ="png" #the static image format that the bot downloads and uploads
 maxSize = (1024, 1024) #the maximum image size for the border image
 
-cogs = [f'cogs.{cog}' for cog in ['avatar', 'border', 'other', 'guild', 'owner']]
+cogs = [f'cogs.{cog}' for cog in ['avatar', 'border', 'guild', 'other', 'owner']]
 
 filepaths = ["avatars", "textures", "logs", "guilds"]
 

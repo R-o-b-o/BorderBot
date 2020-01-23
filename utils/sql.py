@@ -1,7 +1,6 @@
 import aiosqlite
 from asgiref.sync import async_to_sync
 import os
-import config
 
 dbFilename = "BorderBot.sqlite"
 
@@ -26,7 +25,7 @@ async def ExecuteSQLReader(sql, *params):
 
 async def GetPrefixFromDb(guildId):
     prefix = await ExecuteSQLReader('SELECT Prefix FROM Prefixes WHERE GuildID=?', guildId)
-    return prefix[0][0] or config.prefix
+    return prefix[0][0]
     
 async def AddGuilds(guildIds):
     for guildId in guildIds:
@@ -52,4 +51,5 @@ async def AddGuild(guildId):
     await ExecuteSQL('INSERT INTO Prefixes(GuildID) VALUES (?)', guildId)
 
 async def RemoveGuild(guildId):
-    await ExecuteSQL('DELETE Prefixes, IconChanger FROM Prefixes INNER JOIN IconChanger ON Prefixes.GuildID=IconChanger.GuildID WHERE GuildID=?', guildId)
+    await ExecuteSQL('DELETE FROM Prefixes    WHERE GuildID=?', guildId)
+    await ExecuteSQL('DELETE FROM IconChanger WHERE GuildID=?', guildId)

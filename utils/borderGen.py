@@ -52,7 +52,7 @@ def GetDominantColors(filepath, numColors):
         for i in range(0, len(colors)):
             draw.rectangle([i * 100, 0, i * 100 + 100, 100], fill=colors[i][1])
 
-        return GetImageBytes(imageColors, "png")
+        return GetImageBytes(imageColors, "png"), ['#%02x%02x%02x' % color[1] for color in colors]
 
 @sync_to_async
 def GetAvatarHistoryImage(filepaths):

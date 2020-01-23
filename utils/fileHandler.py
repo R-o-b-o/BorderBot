@@ -29,9 +29,9 @@ async def downloadAvatar(author):
     url = author.avatar_url_as(format=imageFormat, size=1024)
     if str(author.avatar_url).endswith(".gif?size=1024"):
         url = author.avatar_url
-        filepath += "/" + author.avatar + ".gif"
+        filepath += f"/{author.avatar}.gif"
     else:
-        filepath += "/" + author.avatar + f".{imageFormat}"
+        filepath += f"/{author.avatar}.{imageFormat}"
     
     if os.path.isfile(filepath):
         return filepath
@@ -69,6 +69,7 @@ def getFilepaths(filepath):
     filepaths = []
     for file in os.listdir(filepath):
         filepaths.append(filepath + file)
+    filepaths.sort(key=os.path.getctime)
     return filepaths
 
 async def downloadTexture(filename, url):
