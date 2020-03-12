@@ -4,6 +4,19 @@ import os, random, math, asyncio
 from timeit import default_timer as timer
 from utils import fileHandler, borderGen
 
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import img_to_array
+from keras.models import load_model
+
+model = load_model('anime_model.h5')
+
+async def IsAnime(user):
+    filepath = await fileHandler.downloadAvatar(user)
+    img = load_img(filepath, target_size=(200, 200))
+    img = img_to_array(img) / 255
+    img = img.reshape(1, 200, 200, 3)
+    return 1 - model.predict(img)[0][0]
+
 class Avatar(commands.Cog):
     
     def __init__(self, bot):
@@ -18,8 +31,10 @@ class Avatar(commands.Cog):
         if str(member.avatar_url).endswith(".gif?size=1024"):
             url = member.avatar_url
         
-        if random.randint(0, 5) == 0 and ctx.me.guild_permissions.manage_webhooks:
-            embed=discord.Embed(description=f"[Avatar Link]({url})", color=0xAD1457)
+        color = borderGen.GetMostFrequentColor(await fileHandler.downloadAvatar(member))
+
+        if random.randint(0, 5) == 0 and isinstance(ctx.channel, discord.abc.GuildChannel) and ctx.me.guild_permissions.manage_webhooks:
+            embed=discord.Embed(description=f"[Avatar Link]({url})", color=int(color.replace('#', ''), 16))
             embed.set_thumbnail(url=url)
             embed.set_image(url=url)
             embed.set_author(name=f"{member.name}", icon_url=url)
@@ -29,14 +44,14 @@ class Avatar(commands.Cog):
             await webhook.send(embed=embed, avatar_url=url)
             await webhook.delete()
         else:
-            embed=discord.Embed(title=f"{member.name}", description=f"[Avatar Link]({url})", color=0xAD1457)
+            embed=discord.Embed(title=f"{member.name}", description=f"[Avatar Link]({url})", color=int(color.replace('#', ''), 16))
             embed.set_thumbnail(url=url)
             embed.set_image(url=url)
         
             await ctx.send(embed=embed)
     
-    @commands.command(name='history', description='See all previous avatars', aliases=['avatars'])
-    @commands.cooldown(2,300,commands.BucketType.user)
+    @commands.command(name='history', description='See all previous avatars', aliases=['avatars'], usage="[@user]")
+    @commands.cooldown(3,200,commands.BucketType.user)
     async def history(self, ctx, member : discord.Member = None):
         if member is None:
             member = ctx.author
@@ -47,29 +62,40 @@ class Avatar(commands.Cog):
 
         filepaths = fileHandler.getFilepaths("avatars/" + str(member.id) + "/")
 
-        fileBytes = await borderGen.GetAvatarHistoryImage(filepaths)
-        await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms", file=discord.File(fileBytes, filename="history.png"))
+        if len(filepaths) != 1:
+            fileBytes = await borderGen.GetAvatarHistoryImage(filepaths)
+            await ctx.send(f"processing **{len(filepaths)}** images took **{str(math.trunc((timer() - startTime) * 1000))}ms**", file=discord.File(fileBytes, filename="history.png"))
 
-        reactionMessage = await ctx.send("Would you like me to dm you these individually?")
-        await reactionMessage.add_reaction("❌")
-        await reactionMessage.add_reaction("☑")
+            reactionMessage = await ctx.send("Would you like me to dm you these individually?")
+            await reactionMessage.add_reaction("❌")
+            await reactionMessage.add_reaction("☑")
 
-        def check(reaction, user):
-            return user == ctx.author
+            def check(reaction, user):
+                return user == ctx.author
 
-        try:
-            reaction, _ = await self.bot.wait_for('reaction_add', timeout=20, check=check)
+            try:
+                reaction, _ = await self.bot.wait_for('reaction_add', timeout=10, check=check)
 
-            if str(reaction.emoji) == '☑':
-                await reactionMessage.edit(content="Dmed previous avatars 🖼!")
-                await reactionMessage.clear_reactions()
-                files = [discord.File(filepath) for filepath in filepaths]
-                for i in range(0, len(files), 10):
-                    await ctx.author.send(files=files[i:i+10])
-            else:
+                if str(reaction.emoji) == '☑':
+                    await reactionMessage.edit(content="Dmed previous avatars 🖼!")
+                    await reactionMessage.clear_reactions()
+                    
+                    while (len(filepaths) != 0):
+                        uploadSize = 0
+                        filesToUpload = []
+                        while(len(filesToUpload) < 10 and len(filepaths) != 0):
+                            uploadSize += os.path.getsize(filepaths[-1])
+                            if (uploadSize > 8*10**6):
+                                break
+                            else:
+                                filesToUpload.append(discord.File(filepaths.pop()))
+                        await ctx.author.send(files=filesToUpload)
+                else:
+                    await reactionMessage.delete()
+            except asyncio.TimeoutError:
                 await reactionMessage.delete()
-        except asyncio.TimeoutError:
-            await reactionMessage.delete()
+        else:
+            await ctx.send("There are no past avatars stored, try again next time you change it.")
     
     @commands.command(name='randomAvatar', description='View a random avatar')
     @commands.cooldown(10,30,commands.BucketType.user)
@@ -80,12 +106,26 @@ class Avatar(commands.Cog):
                 filepaths.append(os.path.join(path, name))
         await ctx.send(file=discord.File(random.choice(filepaths)))
 
-    @commands.command(name='avatarColors', description='Get n most dominant avatar colors', aliases=['avatarcolours', 'colors', 'colours'], usage="(# of colors)")
-    @commands.cooldown(10,30)
+    @commands.command(name='colors', description='Get n most dominant avatar colors', aliases=['avatarcolours', 'avatarColors', 'colours'], usage="(# of colors)")
+    @commands.cooldown(10,30,commands.BucketType.guild)
     async def avatarColors(self, ctx, numColors = 5):
         filepath = await fileHandler.downloadAvatar(ctx.author)
-        fileBytes, colors = borderGen.GetDominantColors(filepath, numColors)
+        fileBytes, colors = borderGen.GetDominantColorsImage(filepath, numColors)
         await ctx.send("```css\n"+', '.join(colors)+"\n```", file=discord.File(fileBytes, filename="colors.png"))
+
+    @commands.command(name='weebcheck', description='Determine weebyness from your avatar', aliases=['weeb'], usage="[@user]")
+    @commands.cooldown(2, 5, commands.BucketType.user)
+    async def weebCheck(self, ctx, member : discord.Member = None):
+        if member is None:
+            member = ctx.author
+        await ctx.channel.trigger_typing()
+
+        weeb = await IsAnime(member) * 100
+
+        if weeb >= 50:
+            await ctx.send(f"I am **{weeb:.2f}%** sure {member.mention} is a weeb")
+        else:
+            await ctx.send(f"I am **{(100 - weeb):.2f}%** sure {member.mention} is not a weeb")
 
 
 def setup(bot):

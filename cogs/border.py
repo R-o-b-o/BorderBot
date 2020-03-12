@@ -25,7 +25,7 @@ class Border(commands.Cog):
         self.bot = bot
 
     @commands.command(name='random', description='Generate a border with random parameters', usage="(# images {max 5})", aliases=['randomBorder'])
-    @commands.cooldown(1,10,commands.BucketType.guild)
+    @commands.cooldown(2,10,commands.BucketType.user)
     async def random_command(self, ctx, times : int=1):
         if  (times <= 3):
             await ctx.channel.trigger_typing()
@@ -69,7 +69,7 @@ class Border(commands.Cog):
         startTime = timer()
                 
         if color == "default":
-            color = borderGen.GetMostFrequentColor(filepath)
+            color = random.choice(borderGen.GetDominantColors(filepath, 10))
         
         try:
             fileBytes = await borderGen.GenerateBasic(filepath, color, size)
@@ -115,6 +115,7 @@ class Border(commands.Cog):
         await send_preview_webhook(ctx, fileMessage, messageContent)
 
     @commands.command(name='borderSquare', hidden=True)
+    @commands.cooldown(5,30,commands.BucketType.guild)
     async def borderSquare(self, ctx, color="default", size : float=0.1):
         await ctx.channel.trigger_typing()
         startTime = timer()
@@ -195,7 +196,8 @@ class Border(commands.Cog):
                 pass
         os.remove(filepath)
 
-    @commands.command(name='colorswap', description="Use another avatar's color palette on your own", aliases=['palette', 'cs', 'colourswap'])
+    @commands.command(name='colorswap', description="Use another avatar's color palette on your own", aliases=['palette', 'cs', 'colourswap'], usage="@user")
+    @commands.cooldown(5,20,commands.BucketType.guild)
     async def palette(self, ctx, member : discord.Member = None):
         await ctx.channel.trigger_typing()
         filepathUser = await fileHandler.downloadAvatar(ctx.author)

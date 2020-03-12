@@ -12,16 +12,12 @@ async def get_prefix(bot, message):
         prefix = config.prefix
     return commands.when_mentioned_or(prefix)(bot, message)
 
-bot = commands.Bot(command_prefix=get_prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True)
+bot = commands.Bot(command_prefix=get_prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True, help_command=None)
 
 @bot.event
 async def on_ready():
-    bot.remove_command('help')
-
-    for cog in config.cogs:
-        bot.load_extension(cog)
-
     await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
+
     bot.loop.create_task(log_guild_stats())
     bot.loop.create_task(update_botlists())
     
@@ -38,7 +34,7 @@ async def on_command_error(ctx, error):
         await ctx.send((f"You have to have `{', '.join(error.missing_perms)}` to use this command."))
     
     elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(f"{ctx.author.mention} slow down! Try again in {error.retry_after:.1f} seconds.")
+        await ctx.send(f"{ctx.author.mention} slow down! Try again in **{error.retry_after:.1f} seconds.**")
 
     elif isinstance(error, discord.errors.Forbidden):
         await ctx.send("I don't have sufficient permissions for that command.")
@@ -90,16 +86,15 @@ async def on_guild_remove(guild):
     await bot.get_channel(574923973704286208).send(embed=embed)
 
 async def send_showcase(user):
-    color = borderGen.GetMostFrequentColor(await fileHandler.downloadAvatar(user))
+    filepath = await fileHandler.downloadAvatar(user)
 
-    url = user.avatar_url_as(format='png', size=1024)
-    if str(user.avatar_url).endswith(".gif?size=1024"):
-        url = user.avatar_url
-    
+    color = borderGen.GetMostFrequentColor(filepath)
+
+    filename = filepath.replace("/", "\\").split("\\")[-1]
     embed=discord.Embed(title=f"{str(user)}", color=int(color.replace('#', ''), 16))
-    embed.set_image(url=url)
+    embed.set_image(url=f"attachment://{filename}")
     
-    await bot.get_channel(588808593579573250).send(embed=embed)
+    await bot.get_channel(588808593579573250).send(embed=embed, file=discord.File(filepath, filename=filename))
 
 async def log_guild_stats():
     while not bot.is_closed():
@@ -161,6 +156,8 @@ fileHandler.CreateFolders()
 guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
 commandLogger = fileHandler.setupLogger("comamnds", "logs/commands.log")
 botListLogger = fileHandler.setupLogger("botlists", "logs/botlists.log") 
+for cog in config.cogs:
+    bot.load_extension(cog)
 
 sql.CreateDB()
 

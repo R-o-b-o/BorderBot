@@ -45,14 +45,21 @@ def GetDominantColors(filepath, numColors):
     with Image.open(filepath) as image:
         image = image.convert('P', palette=Image.ADAPTIVE, colors=numColors)
         image = image.convert("RGB")
+
+        return ['#%02x%02x%02x' % color[1] for color in image.getcolors(numColors)]
+
+def GetDominantColorsImage(filepath, numColors):
+    with Image.open(filepath) as image:
+        image = image.convert('P', palette=Image.ADAPTIVE, colors=numColors)
+        image = image.convert("RGB")
         
-        colors = image.getcolors(numColors)
+        colors = GetDominantColors(filepath, numColors)
         imageColors = Image.new("RGB", (100 * numColors, 100))
         draw = ImageDraw.Draw(imageColors)
         for i in range(0, len(colors)):
-            draw.rectangle([i * 100, 0, i * 100 + 100, 100], fill=colors[i][1])
+            draw.rectangle([i * 100, 0, i * 100 + 100, 100], fill=colors[i])
 
-        return GetImageBytes(imageColors, "png"), ['#%02x%02x%02x' % color[1] for color in colors]
+        return GetImageBytes(imageColors, "png"), colors
 
 @sync_to_async
 def GetAvatarHistoryImage(filepaths):

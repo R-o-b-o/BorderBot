@@ -41,6 +41,7 @@ class Other(commands.Cog):
 
     @commands.command(name='stats', description="Bot stats")
     async def stats(self, ctx):
+        await ctx.channel.trigger_typing()
         guilds = self.bot.guilds
         users = 0
         for guild in guilds:
@@ -84,7 +85,7 @@ class Other(commands.Cog):
         if prefix != "current" and ctx.author.guild_permissions.manage_guild:
             await sql.ChangePrefix(ctx.guild.id, prefix)
         else:
-            prefix = await sql.GetPrefixFromDb(ctx.guild.id)
+            prefix = await sql.GetPrefixFromDb(ctx.guild.id) or config.prefix
         
         await ctx.send(f'The prefix is `{prefix}`')
 
