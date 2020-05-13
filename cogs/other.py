@@ -80,7 +80,7 @@ class Other(commands.Cog):
         await ctx.send(embed=embed)  
 
     @commands.command(name='prefix', description="Get or change the bot prefix", usage="[new prefix]")
-    @commands.cooldown(1, 10,commands.BucketType.guild)
+    @commands.cooldown(2, 10,commands.BucketType.guild)
     async def prefix(self, ctx,  *, prefix='current'):
         if prefix != "current" and ctx.author.guild_permissions.manage_guild:
             await sql.ChangePrefix(ctx.guild.id, prefix)

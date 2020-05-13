@@ -5,17 +5,6 @@ from io import BytesIO
 from timeit import default_timer as timer
 from utils import borderGen, fileHandler
 
-async def send_preview_webhook(ctx, fileMessage, messageContent):
-    try:
-        webhook = await ctx.channel.create_webhook(name="BorderBot")
-        await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
-        await webhook.delete()
-    except:
-        if isinstance(ctx.channel, discord.abc.GuildChannel):
-            await ctx.send("If you want the preview, enable `manage webhooks` permission")
-        else:
-            await ctx.send("If you want the preview, use this command in a server")
-
 def get_extension(filepath):
     return ".gif" if filepath.endswith(".gif") else ".png"
 
@@ -23,6 +12,17 @@ class Border(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+
+    async def send_preview_webhook(self, ctx, fileMessage, messageContent):
+        try:
+            webhook = await ctx.channel.create_webhook(name=ctx.guild.get_member(self.bot.user.id).display_name)
+            await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
+            await webhook.delete()
+        except:
+            if isinstance(ctx.channel, discord.abc.GuildChannel):
+                await ctx.send("If you want the preview, enable `manage webhooks` permission")
+            else:
+                await ctx.send("If you want the preview, use this command in a server")
 
     @commands.command(name='random', description='Generate a border with random parameters', usage="(# images {max 5})", aliases=['randomBorder'])
     @commands.cooldown(2,10,commands.BucketType.user)
@@ -55,7 +55,7 @@ class Border(commands.Cog):
         fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, size, colorSwap=True)
 
         fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + f" borderTextured{get_extension(filepath)}"))
-        await send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")
+        await self.send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")
 
     @commands.command(name='border', description='Add a single color border', usage="(color) (decimal between 0-1) <defaults to size 0.1 and the most occuring color>", aliases=["b"])
     @commands.cooldown(2, 5,commands.BucketType.guild)
@@ -84,7 +84,7 @@ class Border(commands.Cog):
         uploadTime = math.trunc((timer() - startTime) * 1000)
 
         messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-        await send_preview_webhook(ctx, fileMessage, messageContent)
+        await self.send_preview_webhook(ctx, fileMessage, messageContent)
 
     @commands.command(name='borderTexture', description='Add a textured border', usage="(upload texture image) (decimal between 0-1) <defaults to size 0.1>", aliases=['bt'])
     @commands.cooldown(2, 5,commands.BucketType.guild)
@@ -112,7 +112,7 @@ class Border(commands.Cog):
         uploadTime = math.trunc((timer() - startTime) * 1000)
 
         messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-        await send_preview_webhook(ctx, fileMessage, messageContent)
+        await self.send_preview_webhook(ctx, fileMessage, messageContent)
 
     @commands.command(name='borderSquare', hidden=True)
     @commands.cooldown(5,30,commands.BucketType.guild)
@@ -136,7 +136,7 @@ class Border(commands.Cog):
         uploadTime = math.trunc((timer() - startTime) * 1000)
 
         messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-        await send_preview_webhook(ctx, fileMessage, messageContent)
+        await self.send_preview_webhook(ctx, fileMessage, messageContent)
 
     @commands.command(name='editor', description='Lets you edit your border in real time!', aliases=['edit'], hidden=True)
     @commands.cooldown(1, 60,commands.BucketType.user)
