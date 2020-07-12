@@ -49,7 +49,29 @@ class Avatar(commands.Cog):
             embed.set_image(url=url)
         
             await ctx.send(embed=embed)
-    
+
+    @commands.command(name='clearAvatarHistory', hidden=True, description='Remove all previous avatars', aliases=['removeHistory', 'clear'])
+    @commands.cooldown(3,200,commands.BucketType.user)
+    async def clearHistory(self, ctx):
+        reactionMessage = await ctx.send("Are you sure you want to delete all your previous avatars?")
+        await reactionMessage.add_reaction("❌")
+        await reactionMessage.add_reaction("☑")
+
+        def check(reaction, user):
+            return user == ctx.author
+
+        try:
+            reaction, _ = await self.bot.wait_for('reaction_add', timeout=10, check=check)
+
+            if str(reaction.emoji) == '☑':
+                fileHandler.clearAvatarFolder(ctx.author.id)
+                await reactionMessage.edit(content="**All previous avatars cleared**")
+            else:
+                await reactionMessage.edit(content="**Command cancelled**")
+        except asyncio.TimeoutError:
+            await reactionMessage.edit(content="**Command timed out**")
+        await reactionMessage.clear_reactions()
+
     @commands.command(name='history', description='See all previous avatars', aliases=['avatars'], usage="[@user]")
     @commands.cooldown(3,200,commands.BucketType.user)
     async def history(self, ctx, member : discord.Member = None):

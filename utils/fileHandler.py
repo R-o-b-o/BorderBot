@@ -55,14 +55,18 @@ async def setupSlideshow(guildId, urls):
     if not os.path.exists(filepath):
         os.makedirs(filepath)
 
-    clearFolder(guildId)
+    clearGuildFolder(guildId)
 
     for i in range(len(urls)): 
         ext = (urls[i].split('.'))[-1]
         await downloadFromURL(filepath + f'/{i}.{ext}', urls[i])
 
-def clearFolder(guildId):
+def clearGuildFolder(guildId):
     for filepath in getFilepaths(f'guilds/{guildId}/'):
+        os.remove(filepath)
+
+def clearAvatarFolder(userId):
+    for filepath in getFilepaths(f'avatars/{userId}/'):
         os.remove(filepath)
 
 def getFilepaths(filepath):
