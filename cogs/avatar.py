@@ -53,7 +53,7 @@ class Avatar(commands.Cog):
     @commands.command(name='clearAvatarHistory', hidden=True, description='Remove all previous avatars', aliases=['removeHistory', 'clear'])
     @commands.cooldown(3,200,commands.BucketType.user)
     async def clearHistory(self, ctx):
-        reactionMessage = await ctx.send("Are you sure you want to delete all your previous avatars?")
+        reactionMessage = await ctx.send("**Are you sure you want to delete all your previous avatars?** (if you would just like to remove one, please join the support server and request an admin)")
         await reactionMessage.add_reaction("❌")
         await reactionMessage.add_reaction("☑")
 
