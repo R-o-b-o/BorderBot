@@ -12,12 +12,27 @@ class Border(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+        self.botIconBytes = None
+
+    async def get_bot_icon(self):
+        if self.botIconBytes is None:
+            self.botIconBytes = await fileHandler.downloadFromURLToBytesIO(str(self.bot.user.avatar_url_as(format="png", size=128)))
+        self.botIconBytes.seek(0)
+        return self.botIconBytes
 
     async def send_preview_webhook(self, ctx, fileMessage, messageContent):
         try:
-            webhook = await ctx.channel.create_webhook(name=ctx.guild.get_member(self.bot.user.id).display_name)
-            await webhook.send(messageContent, avatar_url=fileMessage.attachments[0].url)
-            await webhook.delete()
+            previewWebhook = None
+            for webhook in await ctx.channel.webhooks():
+                if webhook.user.id == self.bot.user.id:
+                    previewWebhook = webhook
+
+            if not previewWebhook:
+                previewWebhook = await ctx.channel.create_webhook(name="BorderBot", avatar=(await self.get_bot_icon()).read())
+
+
+            await previewWebhook.send(messageContent, username=ctx.guild.get_member(self.bot.user.id).display_name, avatar_url=fileMessage.attachments[0].url)
+            #await webhook.delete()
         except:
             if isinstance(ctx.channel, discord.abc.GuildChannel):
                 await ctx.send("If you want the preview, enable `manage webhooks` permission")
