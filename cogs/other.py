@@ -82,12 +82,15 @@ class Other(commands.Cog):
     @commands.command(name='prefix', description="Get or change the bot prefix", usage="[new prefix]")
     @commands.cooldown(2, 10,commands.BucketType.guild)
     async def prefix(self, ctx,  *, prefix='current'):
-        if prefix != "current" and ctx.author.guild_permissions.manage_guild:
-            await sql.ChangePrefix(ctx.guild.id, prefix)
+        if prefix != "current":
+            if ctx.author.guild_permissions.manage_guild: 
+                await sql.ChangePrefix(ctx.guild.id, prefix)
+                await ctx.send(f'The prefix has been changed to `{prefix}`')
+            else: 
+                await ctx.send(f'The current prefix is `{prefix}`, you must have `manage_guild` to change it')
         else:
-            prefix = await sql.get_prefix_from_DB(ctx.guild.id) or config.prefix
-        
-        await ctx.send(f'The prefix is `{prefix}`')
+            prefix = await sql.GetPrefixFromDb(ctx.guild.id) or config.prefix
+            await ctx.send(f'The prefix is `{prefix}`')
 
     @commands.command(name='help', description="Help command")
     async def help(self, ctx, help_command="all"):
