@@ -7,7 +7,7 @@ import config
 
 async def get_prefix(bot, message):
     if isinstance(message.channel, discord.abc.GuildChannel):
-        prefix = await sql.GetPrefixFromDb(message.guild.id) or config.prefix
+        prefix = await sql.get_prefix_from_DB(message.guild.id) or config.prefix
     else:
         prefix = config.prefix
     return commands.when_mentioned_or(prefix)(bot, message)
@@ -21,7 +21,7 @@ async def on_ready():
     bot.loop.create_task(log_guild_stats())
     bot.loop.create_task(update_botlists())
     
-    await sql.AddGuilds(guild.id for guild in bot.guilds)
+    await sql.add_guilds(guild.id for guild in bot.guilds)
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
 @bot.event
@@ -43,7 +43,7 @@ async def on_command_error(ctx, error):
         await ctx.send("The file is too large for me to send, I can only deal with avatars under 8MB.")
 
     elif isinstance(error, commands.NotOwner):
-        await ctx.send("This is a **owner** only command")
+        await ctx.send("This command can only be made by the **bot owner**")
 
     else:
         await ctx.send(f"Something went wrong, consider reading the **{(await get_prefix(bot, ctx.message))[2]}help {ctx.invoked_with}**")
@@ -51,7 +51,7 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_user_update(before, after):
     if before.avatar != after.avatar and before.avatar is not None:
-        borderGen.ImageToStatic(await fileHandler.downloadAvatar(before))
+        borderGen.image_to_static(await fileHandler.download_avatar(before))
 
         if (after in bot.get_guild(config.support_guild).members) and not(after.bot):
             await send_showcase(after)
@@ -63,7 +63,7 @@ async def on_member_join(member):
 
 @bot.event
 async def on_command_completion(ctx):
-    commandLogger.info(f"{ctx.command.name} {ctx.author.id}")
+    command_logger.info(f"{ctx.command.name} {ctx.author.id}")
 
 @bot.event
 async def on_guild_join(guild):
@@ -86,9 +86,9 @@ async def on_guild_remove(guild):
     await bot.get_channel(574923973704286208).send(embed=embed)
 
 async def send_showcase(user):
-    filepath = await fileHandler.downloadAvatar(user)
+    filepath = await fileHandler.download_avatar(user)
 
-    color = borderGen.GetMostFrequentColor(filepath)
+    color = borderGen.get_most_frequent_color(filepath)
 
     filename = filepath.replace("/", "\\").split("\\")[-1]
     embed=discord.Embed(title=f"{str(user)}", color=int(color.replace('#', ''), 16))
@@ -103,7 +103,7 @@ async def log_guild_stats():
         for guild in guilds:
             users += len(guild.members)
 
-        guildLogger.info("%d %d" % (len(guilds), users))
+        guild_logger.info("%d %d" % (len(guilds), users))
 
         await asyncio.sleep(3600)
 
@@ -133,7 +133,7 @@ async def update_divinebotlist():
 
             url = 'https://divinediscordbots.com/bot/{}/stats'.format(bot.user.id)
             async with session.post(url, data=payload, headers=headers) as resp:
-                botListLogger.info('divinediscordbots statistics returned {} for {}'.format(resp.status, payload))
+                botlist_logger.info('divinediscordbots statistics returned {} for {}'.format(resp.status, payload))
 
 async def update_botlistspace():
     if config.blsToken is not None:
@@ -150,15 +150,15 @@ async def update_botlistspace():
 
             url = 'https://api.botlist.space/v1/bots/{}'.format(bot.user.id)
             async with session.post(url, data=payload, headers=headers) as resp:
-                botListLogger.info('botlistspace statistics returned {} for {}'.format(resp.status, payload))
+                botlist_logger.info('botlistspace statistics returned {} for {}'.format(resp.status, payload))
 
-fileHandler.CreateFolders()
-guildLogger = fileHandler.setupLogger("guilds", "logs/guilds.log")
-commandLogger = fileHandler.setupLogger("comamnds", "logs/commands.log")
-botListLogger = fileHandler.setupLogger("botlists", "logs/botlists.log") 
+fileHandler.create_folders()
+guild_logger = fileHandler.setup_logger("guilds", "logs/guilds.log")
+command_logger = fileHandler.setup_logger("comamnds", "logs/commands.log")
+botlist_logger = fileHandler.setup_logger("botlists", "logs/botlists.log") 
 for cog in config.cogs:
     bot.load_extension(cog)
 
-sql.CreateDB()
+sql.create_db()
 
 bot.run(config.token)

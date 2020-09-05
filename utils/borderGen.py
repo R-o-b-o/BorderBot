@@ -7,24 +7,24 @@ from skimage.color import rgb2lab, lab2rgb
 import numpy as np
 import warnings
 
-imageFormat = config.imageFormat
+image_format = config.image_format
 
-def ColorSwap(source, tar):
+def color_swap(source, tar):
     with Image.open(source) as sourceImage:
         with Image.open(tar) as tarImage:
-            sourceLab = rgb2lab(np.array(sourceImage.convert('RGB')))
-            tarLab = rgb2lab(np.array(tarImage.convert('RGB')))
+            source_lab = rgb2lab(np.array(sourceImage.convert('RGB')))
+            target_lab = rgb2lab(np.array(tarImage.convert('RGB')))
             
-            dataS = np.asarray(sourceLab, dtype=float).reshape(np.multiply.reduce(sourceImage.size), 3)
-            dataT = np.asarray(tarLab, dtype=float).reshape(np.multiply.reduce(tarImage.size), 3)
+            data_source = np.asarray(source_lab, dtype=float).reshape(np.multiply.reduce(sourceImage.size), 3)
+            data_tar = np.asarray(target_lab, dtype=float).reshape(np.multiply.reduce(tarImage.size), 3)
             
             #dataS = np.add(np.multiply(np.divide(np.subtract(dataS, dataS.mean(axis=0)), dataS.std(axis=0)), dataT.std(axis=0)), dataT.mean(axis=0)).reshape(sourceImage.size[::-1]+(3,))
-            dataS = (((dataS - dataS.mean(axis=0)) / dataS.std(axis=0) * dataT.std(axis=0)) + dataT.mean(axis=0)).reshape(sourceImage.size[::-1]+(3,))
+            data_source = (((data_source - data_source.mean(axis=0)) / data_source.std(axis=0) * data_tar.std(axis=0)) + data_tar.mean(axis=0)).reshape(sourceImage.size[::-1]+(3,))
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                return GetImageBytes(Image.fromarray(np.uint8(lab2rgb(dataS)*255)), imageFormat)
+                return get_image_bytes(Image.fromarray(np.uint8(lab2rgb(data_source)*255)), image_format)
 
-def GetMostFrequentColor(filepath):
+def get_most_frequent_color(filepath):
     with Image.open(filepath) as image:
         image = image.convert('P', palette=Image.ADAPTIVE, colors=10)
         image = image.convert("RGB")
@@ -41,176 +41,176 @@ def GetMostFrequentColor(filepath):
 
         return '#%02x%02x%02x' % most_frequent_pixel[1]
 
-def GetDominantColors(filepath, numColors):
+def get_dominant_colors(filepath, num_colors):
     with Image.open(filepath) as image:
-        image = image.convert('P', palette=Image.ADAPTIVE, colors=numColors)
+        image = image.convert('P', palette=Image.ADAPTIVE, colors=num_colors)
         image = image.convert("RGB")
 
-        return ['#%02x%02x%02x' % color[1] for color in image.getcolors(numColors)]
+        return ['#%02x%02x%02x' % color[1] for color in image.getcolors(num_colors)]
 
-def GetDominantColorsImage(filepath, numColors):
+def get_dominant_colors_image(filepath, num_colors):
     with Image.open(filepath) as image:
-        image = image.convert('P', palette=Image.ADAPTIVE, colors=numColors)
+        image = image.convert('P', palette=Image.ADAPTIVE, colors=num_colors)
         image = image.convert("RGB")
         
-        colors = GetDominantColors(filepath, numColors)
-        imageColors = Image.new("RGB", (100 * numColors, 100))
-        draw = ImageDraw.Draw(imageColors)
+        colors = get_dominant_colors(filepath, num_colors)
+        image_colors = Image.new("RGB", (100 * num_colors, 100))
+        draw = ImageDraw.Draw(image_colors)
         for i in range(0, len(colors)):
             draw.rectangle([i * 100, 0, i * 100 + 100, 100], fill=colors[i])
 
-        return GetImageBytes(imageColors, "png"), colors
+        return get_image_bytes(image_colors, "png"), colors
 
 @sync_to_async
-def GetAvatarHistoryImage(filepaths):
-    AvWidth = math.ceil(math.sqrt(len(filepaths)))
-    Avheight = math.ceil(len(filepaths) / AvWidth)
+def get_avatar_history_image(filepaths):
+    av_width = math.ceil(math.sqrt(len(filepaths)))
+    av_height = math.ceil(len(filepaths) / av_width)
 
-    imageHistory = Image.new("RGBA", (3000, math.ceil(3000 * Avheight/AvWidth)))
-    width = math.trunc(imageHistory.width / AvWidth)
-    height = math.trunc(imageHistory.height / Avheight)
+    image_history = Image.new("RGBA", (3000, math.ceil(3000 * av_height/av_width)))
+    width = math.trunc(image_history.width / av_width)
+    height = math.trunc(image_history.height / av_height)
 
     for i in range(0, len(filepaths)):
         with Image.open(filepaths[i]) as image:
             #image = image.convert("RGB")
             image = image.resize((width, height))
 
-            imageHistory.paste(image, ((i % AvWidth) * width, height * math.trunc(i / AvWidth)))
+            image_history.paste(image, ((i % av_width) * width, height * math.trunc(i / av_width)))
 
-    return GetImageBytes(imageHistory, "webp")
+    return get_image_bytes(image_history, "webp")
 
 @sync_to_async
-def GenerateBasic(filepath, color, size, imageFormat=imageFormat):
+def generate_basic(filepath, color, size, image_format=image_format):
     if filepath.endswith(".gif"):
-        return GenerateGif(filepath, color, size)
+        return generate_basic_GIF(filepath, color, size)
     
     color = ImageColor.getcolor(color, 'RGBA')
 
-    with Image.open(filepath) as imageAvatar:
-        imageRing = Image.new('RGBA', (2048, 2048), color=color)
+    with Image.open(filepath) as image_avatar:
+        image_ring = Image.new('RGBA', (2048, 2048), color=color)
 
-        midp = imageRing.width / 2
+        midp = image_ring.width / 2
         r = midp * (1-size)
         
-        draw = ImageDraw.Draw(imageRing)
+        draw = ImageDraw.Draw(image_ring)
         
         draw.ellipse((midp-r, midp-r, midp+r, midp+r), fill=(0,0,0,0))
-        imageRing.thumbnail(imageAvatar.size, Image.LANCZOS)
-        imageAvatar.paste(imageRing, (0, 0), imageRing)
+        image_ring.thumbnail(image_avatar.size, Image.LANCZOS)
+        image_avatar.paste(image_ring, (0, 0), image_ring)
 
         mask = Image.new('L', (2048, 2048), 0)
         draw = ImageDraw.Draw(mask) 
         draw.ellipse((0, 0) + mask.size, fill=255)
-        imageAvatar.putalpha(mask.resize(imageAvatar.size, Image.LANCZOS))
+        image_avatar.putalpha(mask.resize(image_avatar.size, Image.LANCZOS))
         
-        imageAvatar.thumbnail(config.maxSize, Image.LANCZOS)
+        image_avatar.thumbnail(config.max_size, Image.LANCZOS)
 
-        return GetImageBytes(imageAvatar, imageFormat)
+        return get_image_bytes(image_avatar, image_format)
 
 @sync_to_async
-def GenerateSquare(filepath, color, size, imageFormat=imageFormat):
+def generate_square(filepath, color, size, image_format=image_format):
     color = ImageColor.getcolor(color, 'RGBA')
 
-    with Image.open(filepath) as imageAvatar:
-        x = imageAvatar.width * math.sqrt(1-size)
+    with Image.open(filepath) as image_avatar:
+        x = image_avatar.width * math.sqrt(1-size)
 
-        imageSquare = Image.new('RGBA', imageAvatar.size, color=color)
-        draw = ImageDraw.Draw(imageSquare)
+        image_square = Image.new('RGBA', image_avatar.size, color=color)
+        draw = ImageDraw.Draw(image_square)
         
-        draw.rectangle((x, x, imageAvatar.width - x, imageAvatar.height - x), fill=(0,0,0,0))
-        imageAvatar.paste(imageSquare, (0, 0), imageSquare)
+        draw.rectangle((x, x, image_avatar.width - x, image_avatar.height - x), fill=(0,0,0,0))
+        image_avatar.paste(image_square, (0, 0), image_square)
 
-        return GetImageBytes(imageAvatar, imageFormat)
+        return get_image_bytes(image_avatar, image_format)
 
 @sync_to_async
-def GenerateWithTexture(filepath, texturepath, size, imageFormat=imageFormat, colorSwap=False):
+def generate_textured(filepath, texturepath, size, image_format=image_format, colorSwap=False):
     if filepath.endswith(".gif"):
-        return GenerateGifWithTexture(filepath, texturepath, size)
+        return generate_textured_GIF(filepath, texturepath, size)
         
-    with Image.open(filepath) as imageAvatar:
-        with Image.open(texturepath) as imageRing:
+    with Image.open(filepath) as image_avatar:
+        with Image.open(texturepath) as image_ring:
             if colorSwap: 
-                imageRing = imageRing.resize(imageAvatar.size, Image.LANCZOS)
-                imageRing = Image.open(ColorSwap(GetImageBytes(imageRing, "bmp"), GetImageBytes(imageAvatar, "bmp")))
+                image_ring = image_ring.resize(image_avatar.size, Image.LANCZOS)
+                image_ring = Image.open(color_swap(get_image_bytes(image_ring, "bmp"), get_image_bytes(image_avatar, "bmp")))
 
-            imageRing = imageRing.resize((2048, 2048))
+            image_ring = image_ring.resize((2048, 2048))
 
 
-            x = imageRing.width / 2
+            x = image_ring.width / 2
             r = x * (1-size)
             
-            imageRing = imageRing.convert("RGBA")
-            draw = ImageDraw.Draw(imageRing)
+            image_ring = image_ring.convert("RGBA")
+            draw = ImageDraw.Draw(image_ring)
             
             draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
-            imageRing = imageRing.resize(imageAvatar.size, Image.LANCZOS)
-            imageAvatar.paste(imageRing, (0, 0), imageRing)
+            image_ring = image_ring.resize(image_avatar.size, Image.LANCZOS)
+            image_avatar.paste(image_ring, (0, 0), image_ring)
 
             mask = Image.new('L', (2048, 2048), 0)
             draw = ImageDraw.Draw(mask) 
             draw.ellipse((0, 0) + mask.size, fill=255)
-            imageAvatar.putalpha(mask.resize(imageAvatar.size, Image.LANCZOS))
+            image_avatar.putalpha(mask.resize(image_avatar.size, Image.LANCZOS))
 
-            imageAvatar.thumbnail(config.maxSize, Image.LANCZOS)
+            image_avatar.thumbnail(config.max_size, Image.LANCZOS)
             
-            return GetImageBytes(imageAvatar, imageFormat)
+            return get_image_bytes(image_avatar, image_format)
 
-def GenerateGif(filepath, color, size):
-    with Image.open(filepath) as imageGif:
-        imageRing = Image.new('RGBA', (2048, 2048), color=color)
+def generate_basic_GIF(filepath, color, size):
+    with Image.open(filepath) as image_GIF:
+        image_ring = Image.new('RGBA', (2048, 2048), color=color)
 
-        midp = imageRing.width / 2
+        midp = image_ring.width / 2
         r = midp * (1-size)
         
-        draw = ImageDraw.Draw(imageRing)
+        draw = ImageDraw.Draw(image_ring)
         
         draw.ellipse((midp-r, midp-r, midp+r, midp+r), fill=(0,0,0,0))
-        imageRing.thumbnail(imageGif.size, Image.LANCZOS)
+        image_ring.thumbnail(image_GIF.size, Image.LANCZOS)
 
         frames = []
-        for frame in ImageSequence.Iterator(imageGif):
+        for frame in ImageSequence.Iterator(image_GIF):
             
             frame = frame.convert('RGBA')
-            frame.paste(imageRing, (0, 0), imageRing)
+            frame.paste(image_ring, (0, 0), image_ring)
 
             frames.append(frame)
-        imageBytes = BytesIO()
-        frames[0].save(imageBytes, format="gif", save_all=True, append_images=frames[1:])
-        imageBytes.seek(0)
-        return imageBytes
+        image_bytes = BytesIO()
+        frames[0].save(image_bytes, format="gif", save_all=True, append_images=frames[1:])
+        image_bytes.seek(0)
+        return image_bytes
 
-def GenerateGifWithTexture(filepath, texturepath, size):
-    with Image.open(filepath) as imageGif:
-        with Image.open(texturepath) as imageRing:
-            x = imageGif.width / 2
+def generate_textured_GIF(filepath, texturepath, size):
+    with Image.open(filepath) as image_GIF:
+        with Image.open(texturepath) as image_ring:
+            x = image_GIF.width / 2
             r = x * (1-size)
             
-            imageRing = imageRing.resize(imageGif.size)
-            imageRing = imageRing.convert("RGBA")
+            image_ring = image_ring.resize(image_GIF.size)
+            image_ring = image_ring.convert("RGBA")
 
-            draw = ImageDraw.Draw(imageRing)
+            draw = ImageDraw.Draw(image_ring)
             draw.ellipse((x-r, x-r, x+r, x+r), fill=(0,0,0,0))
             
             frames = []
-            for frame in ImageSequence.Iterator(imageGif):
+            for frame in ImageSequence.Iterator(image_GIF):
 
                 frame = frame.convert('RGBA')
-                frame.paste(imageRing, (0, 0), imageRing)
+                frame.paste(image_ring, (0, 0), image_ring)
                 
                 frames.append(frame)
-            imageBytes = BytesIO()
-            frames[0].save(imageBytes, format="gif", save_all=True, append_images=frames[1:])
-            imageBytes.seek(0)
-            return imageBytes
+            image_bytes = BytesIO()
+            frames[0].save(image_bytes, format="gif", save_all=True, append_images=frames[1:])
+            image_bytes.seek(0)
+            return image_bytes
 
-def ImageToStatic(filepath):
+def image_to_static(filepath):
     if filepath.endswith('.gif') and os.path.isfile(filepath):
         with Image.open(filepath) as image:
-            image.save(filepath.replace('gif', imageFormat))
+            image.save(filepath.replace('gif', image_format))
         os.remove(filepath)     
 
-def GetImageBytes(image, format):
-    imageBytes = BytesIO()
-    image.save(imageBytes, format=format)
-    imageBytes.seek(0)
-    return imageBytes
+def get_image_bytes(image, format):
+    image_bytes = BytesIO()
+    image.save(image_bytes, format=format)
+    image_bytes.seek(0)
+    return image_bytes

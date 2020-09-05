@@ -12,26 +12,26 @@ class Border(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
-        self.botIconBytes = None
+        self.bot_icon_bytes = None
 
     async def get_bot_icon(self):
-        if self.botIconBytes is None:
-            self.botIconBytes = await fileHandler.downloadFromURLToBytesIO(str(self.bot.user.avatar_url_as(format="png", size=128)))
-        self.botIconBytes.seek(0)
-        return self.botIconBytes
+        if self.bot_icon_bytes is None:
+            self.bot_icon_bytes = await fileHandler.download_from_URL_to_bytesIO(str(self.bot.user.avatar_url_as(format="png", size=128)))
+        self.bot_icon_bytes.seek(0)
+        return self.bot_icon_bytes
 
     async def send_preview_webhook(self, ctx, fileMessage, messageContent):
         try:
-            previewWebhook = None
+            preview_webhook = None
             for webhook in await ctx.channel.webhooks():
                 if webhook.user.id == self.bot.user.id:
-                    previewWebhook = webhook
+                    preview_webhook = webhook
 
-            if not previewWebhook:
-                previewWebhook = await ctx.channel.create_webhook(name="BorderBot", avatar=(await self.get_bot_icon()).read())
+            if not preview_webhook:
+                preview_webhook = await ctx.channel.create_webhook(name="BorderBot", avatar=(await self.get_bot_icon()).read())
 
 
-            await previewWebhook.send(messageContent, username=ctx.guild.get_member(self.bot.user.id).display_name, avatar_url=fileMessage.attachments[0].url)
+            await preview_webhook.send(messageContent, username=ctx.guild.get_member(self.bot.user.id).display_name, avatar_url=fileMessage.attachments[0].url)
             #await webhook.delete()
         except:
             if isinstance(ctx.channel, discord.abc.GuildChannel):
@@ -44,16 +44,16 @@ class Border(commands.Cog):
     async def random_command(self, ctx, times : int=1):
         if  (times <= 3):
             await ctx.channel.trigger_typing()
-            startTime = timer()
+            start_time = timer()
             
             for _ in range(0,times):
-                filepath = await fileHandler.downloadAvatar(ctx.author)
+                filepath = await fileHandler.download_avatar(ctx.author)
                 color = "#%06x" % random.randint(0, 0xFFFFFF)
                 size = round(random.random() / 5 + 0.05, 4)
-                fileBytes = await borderGen.GenerateBasic(filepath, color, size)
+                file_bytes = await borderGen.generate_basic(filepath, color, size)
                 
-                await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
-            await ctx.send("that took **"+str(math.trunc((timer() - startTime) * 1000))+"** ms")
+                await ctx.send(file=discord.File(file_bytes, filename=color + "-" + str(size) + ".png"))
+            await ctx.send("that took **"+str(math.trunc((timer() - start_time) * 1000))+"** ms")
         else:
             await ctx.send("There is a maximun of 3, *sorry*")
 
@@ -61,152 +61,152 @@ class Border(commands.Cog):
     @commands.cooldown(5,30,commands.BucketType.guild)
     async def randomTexture_command(self, ctx, size : float=0):
         await ctx.channel.trigger_typing()
-        startTime = timer()
+        start_time = timer()
         texturepath = "textures/" + random.choice(os.listdir("textures/"))
 
-        filepath = await fileHandler.downloadAvatar(ctx.author)
+        filepath = await fileHandler.download_avatar(ctx.author)
 
         if size == 0: size = random.random() / 5 + 0.05
-        fileBytes = await borderGen.GenerateWithTexture(filepath, texturepath, size, colorSwap=True)
+        file_bytes = await borderGen.generate_textured(filepath, texturepath, size, colorSwap=True)
 
-        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=ctx.author.name + f" borderTextured{get_extension(filepath)}"))
-        await self.send_preview_webhook(ctx, fileMessage, "that took **" + str(math.trunc((timer() - startTime) * 1000)) + "ms**")
+        file_msg = await ctx.send(file=discord.File(file_bytes, filename=ctx.author.name + f" borderTextured{get_extension(filepath)}"))
+        await self.send_preview_webhook(ctx, file_msg, "that took **" + str(math.trunc((timer() - start_time) * 1000)) + "ms**")
 
     @commands.command(name='border', description='Add a single color border', usage="(color) (decimal between 0-1) <defaults to size 0.1 and the most occuring color>", aliases=["b"])
     @commands.cooldown(2, 5,commands.BucketType.guild)
     async def border_command(self, ctx, color="default", size : float=0.1):
         await ctx.channel.trigger_typing()
-        startTime = timer()
+        start_time = timer()
 
-        filepath = await fileHandler.downloadAvatar(ctx.author)
+        filepath = await fileHandler.download_avatar(ctx.author)
             
-        downloadTime = math.trunc((timer() - startTime) * 1000)
-        startTime = timer()
+        download_time = math.trunc((timer() - start_time) * 1000)
+        start_time = timer()
                 
         if color == "default":
-            color = random.choice(borderGen.GetDominantColors(filepath, 10))
+            color = random.choice(borderGen.get_dominant_colors(filepath, 10))
         
         try:
-            fileBytes = await borderGen.GenerateBasic(filepath, color, size)
+            file_bytes = await borderGen.generate_basic(filepath, color, size)
         except ValueError:
             await ctx.send("I could not find color: **%s**\nFor the list of possible color names: https://www.w3schools.com/colors/colors_names.asp" % color)
             return
 
-        processTime = math.trunc((timer() - startTime) * 1000)
+        process_time = math.trunc((timer() - start_time) * 1000)
 
-        startTime = timer()
-        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + get_extension(filepath)))
-        uploadTime = math.trunc((timer() - startTime) * 1000)
+        start_time = timer()
+        file_msg = await ctx.send(file=discord.File(file_bytes, filename=color + "-" + str(size) + get_extension(filepath)))
+        upload_time = math.trunc((timer() - start_time) * 1000)
 
-        messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-        await self.send_preview_webhook(ctx, fileMessage, messageContent)
+        msg_content = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (download_time, process_time, upload_time)
+        await self.send_preview_webhook(ctx, file_msg, msg_content)
 
     @commands.command(name='borderTexture', description='Add a textured border', usage="(upload texture image) (decimal between 0-1) <defaults to size 0.1>", aliases=['bt'])
     @commands.cooldown(2, 5,commands.BucketType.guild)
     async def borderTexture_command(self, ctx, size : float=0.1):
         await ctx.channel.trigger_typing()
-        startTime = timer()
+        start_time = timer()
 
         if len(ctx.message.attachments) == 0:
             await ctx.send("I could not see a texture file, please upload one in your command message for it to work")
             return
 
-        texturePath = await fileHandler.downloadTexture(ctx.message.attachments[0].filename, ctx.message.attachments[0].url)
-        filepath = await fileHandler.downloadAvatar(ctx.author)
+        texturePath = await fileHandler.download_texture(ctx.message.attachments[0].filename, ctx.message.attachments[0].url)
+        filepath = await fileHandler.download_avatar(ctx.author)
             
-        downloadTime = math.trunc((timer() - startTime) * 1000)
-        startTime = timer()
+        download_time = math.trunc((timer() - start_time) * 1000)
+        start_time = timer()
         
-        fileBytes = await borderGen.GenerateWithTexture(filepath, texturePath, size)
+        file_bytes = await borderGen.generate_textured(filepath, texturePath, size)
         
-        processTime = math.trunc((timer() - startTime) * 1000)
-        startTime = timer()
+        process_time = math.trunc((timer() - start_time) * 1000)
+        start_time = timer()
         
             
-        fileMessage = await ctx.send(file=discord.File(fileBytes, filename="Textured" + "-" + str(size) + get_extension(filepath)))
-        uploadTime = math.trunc((timer() - startTime) * 1000)
+        file_msg = await ctx.send(file=discord.File(file_bytes, filename="Textured" + "-" + str(size) + get_extension(filepath)))
+        upload_time = math.trunc((timer() - start_time) * 1000)
 
-        messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-        await self.send_preview_webhook(ctx, fileMessage, messageContent)
+        msg_content = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (download_time, process_time, upload_time)
+        await self.send_preview_webhook(ctx, file_msg, msg_content)
 
     @commands.command(name='borderSquare', hidden=True)
     @commands.cooldown(5,30,commands.BucketType.guild)
     async def borderSquare(self, ctx, color="default", size : float=0.1):
         await ctx.channel.trigger_typing()
-        startTime = timer()
-        filepath = await fileHandler.downloadAvatar(ctx.author)
+        start_time = timer()
+        filepath = await fileHandler.download_avatar(ctx.author)
                 
-        downloadTime = math.trunc((timer() - startTime) * 1000)
-        startTime = timer()
+        download_time = math.trunc((timer() - start_time) * 1000)
+        start_time = timer()
                     
         if color == "default":
-            color = borderGen.GetMostFrequentColor(filepath)
+            color = borderGen.get_most_frequent_color(filepath)
             
-        fileBytes = await borderGen.GenerateSquare(filepath, color, size)
+        file_bytes = await borderGen.generate_square(filepath, color, size)
             
-        processTime = math.trunc((timer() - startTime) * 1000)
-        startTime = timer()
+        process_time = math.trunc((timer() - start_time) * 1000)
+        start_time = timer()
                     
-        fileMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
-        uploadTime = math.trunc((timer() - startTime) * 1000)
+        file_msg = await ctx.send(file=discord.File(file_bytes, filename=color + "-" + str(size) + ".png"))
+        upload_time = math.trunc((timer() - start_time) * 1000)
 
-        messageContent = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (downloadTime, processTime, uploadTime)
-        await self.send_preview_webhook(ctx, fileMessage, messageContent)
+        msg_content = "that took **%dms** to download, **%dms** to process, **%dms** to upload" % (download_time, process_time, upload_time)
+        await self.send_preview_webhook(ctx, file_msg, msg_content)
 
     @commands.command(name='editor', description='Lets you edit your border in real time!', aliases=['edit'], hidden=True)
     @commands.cooldown(1, 60,commands.BucketType.user)
     async def editor(self, ctx):
-        filepath = await fileHandler.downloadAvatar(ctx.author)
+        filepath = await fileHandler.download_avatar(ctx.author)
         
         await ctx.send("to change border say: (color = *color*) or (size = *decimal between 0 and 1*) or (texture = *upload texture image*)")
         await ctx.send("say **save** to work on another layer and **close** to end the editor")
-        imageMessage = await ctx.send(file=discord.File(filepath))
+        image_msg = await ctx.send(file=discord.File(filepath))
 
         color = "red"
         size = 0.1
-        fileBytes = BytesIO() 
+        file_bytes = BytesIO() 
 
-        timedOut = False
-        while not timedOut:
+        timed_out = False
+        while not timed_out:
 
             def check(m):
                 message = m.content.replace(" ", "").replace(self.bot.command_prefix, "").lower()
                 return m.author == ctx.author and (message.startswith("size=") or message.startswith("color=") or message.startswith("texture=") or message=="close" or message=="save")
                 
             try:
-                responseMessage = await self.bot.wait_for('message', timeout=120, check=check)
+                response_msg = await self.bot.wait_for('message', timeout=120, check=check)
             except asyncio.TimeoutError:
                 await ctx.send("😿 **editor timed out** 😿")
-                timedOut = True
+                timed_out = True
 
             try:
-                responseMessageContent = responseMessage.content.replace(" ", "").replace(self.bot.command_prefix, "").lower()
-                if responseMessageContent.startswith("size="):
-                    size = float(responseMessageContent.replace("size=", ""))
-                elif responseMessageContent.startswith("color="):
-                    color = responseMessageContent.replace("color=", "")
+                response_msg_content = response_msg.content.replace(" ", "").replace(self.bot.command_prefix, "").lower()
+                if response_msg_content.startswith("size="):
+                    size = float(response_msg_content.replace("size=", ""))
+                elif response_msg_content.startswith("color="):
+                    color = response_msg_content.replace("color=", "")
                     textured = False
-                elif responseMessageContent == "save":
-                    await fileHandler.saveImage(filepath, fileBytes)
-                elif responseMessageContent == "close":
-                    timedOut = True
+                elif response_msg_content == "save":
+                    await fileHandler.save_image(filepath, file_bytes)
+                elif response_msg_content == "close":
+                    timed_out = True
                     await ctx.send("😻 **editor closed** 😻")
-                elif responseMessageContent.startswith("texture="):
-                    texturePath = await fileHandler.downloadTexture(responseMessage.attachments[0].filename, responseMessage.attachments[0].url)
+                elif response_msg_content.startswith("texture="):
+                    texturePath = await fileHandler.download_texture(response_msg.attachments[0].filename, response_msg.attachments[0].url)
                     textured = True
                     
                 if textured:
-                    fileBytes = await borderGen.GenerateWithTexture(filepath, texturePath, size)
+                    file_bytes = await borderGen.generate_textured(filepath, texturePath, size)
                 else:
-                    fileBytes = await borderGen.GenerateBasic(filepath, color, size)
+                    file_bytes = await borderGen.generate_basic(filepath, color, size)
 
-                await imageMessage.delete()
+                await image_msg.delete()
                 try:
-                    await responseMessage.delete()
+                    await response_msg.delete()
                 except:
                     pass
                 
-                imageMessage = await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + get_extension(filepath)))
+                image_msg = await ctx.send(file=discord.File(file_bytes, filename=color + "-" + str(size) + get_extension(filepath)))
             except:
                 pass
         os.remove(filepath)
@@ -215,14 +215,14 @@ class Border(commands.Cog):
     @commands.cooldown(5,20,commands.BucketType.guild)
     async def palette(self, ctx, member : discord.Member = None):
         await ctx.channel.trigger_typing()
-        filepathUser = await fileHandler.downloadAvatar(ctx.author)
+        filepath_user = await fileHandler.download_avatar(ctx.author)
         if member is None:
-            filepathOther = await fileHandler.downloadFromURLToBytesIO(ctx.message.attachments[0].url)
+            filepath_other = await fileHandler.download_from_URL_to_bytesIO(ctx.message.attachments[0].url)
         else:
-            filepathOther = await fileHandler.downloadAvatar(member)
+            filepath_other = await fileHandler.download_avatar(member)
 
-        fileBytes = await self.bot.loop.run_in_executor(None, borderGen.ColorSwap, filepathUser, filepathOther)
-        file = discord.File(fileBytes, filename="palette"+ get_extension(filepathUser))
+        file_bytes = await self.bot.loop.run_in_executor(None, borderGen.color_swap, filepath_user, filepath_other)
+        file = discord.File(file_bytes, filename="palette"+ get_extension(filepath_user))
         await ctx.send(file=file)
 
 def setup(bot):

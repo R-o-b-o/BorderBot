@@ -12,9 +12,9 @@ class Other(commands.Cog):
     
     @commands.command(name='ping', description="Find out bot's response time")
     async def ping(self, ctx):
-        startTime = timer()
+        start_time = timer()
         m = await ctx.send(".")
-        time = math.trunc((timer() - startTime) * 1000)
+        time = math.trunc((timer() - start_time) * 1000)
         await m.edit(content="that took **%dms**" % time)
 
     @commands.command(name='feedback', description="Give feedback to improve the bot's functionality", aliases=['question'], usage="(Feedback-Goes-Here)")
@@ -47,21 +47,21 @@ class Other(commands.Cog):
         for guild in guilds:
             users += len(guild.members)
 
-        commands = await fileHandler.GetNumberOfCommands()
+        commands = await fileHandler.get_command_count()
 
-        numAvatars = 0
-        numUsers = 0
+        num_avatars = 0
+        num_users = 0
         _, dirs, files = next(os.walk("avatars/"))
         for _, dirs, files in os.walk("avatars/"):
             for _ in dirs:
-                numUsers += 1
+                num_users += 1
             for _ in files:
-                numAvatars += 1
+                num_avatars += 1
         
-        statsMessage = ("I am in **%d** servers with **%d** users\n"
+        stats_msg = ("I am in **%d** servers with **%d** users\n"
         "**%d** commands have been executed\n"
-        "I also have **%d** avatars stored for **%d** users") % (len(guilds), users, commands, numAvatars, numUsers)
-        await ctx.send(statsMessage)
+        "I also have **%d** avatars stored for **%d** users") % (len(guilds), users, commands, num_avatars, num_users)
+        await ctx.send(stats_msg)
     
     @commands.command(name='invite', description="Bot invite link", aliases=['link'], hidden=True)
     @commands.cooldown(1, 10,commands.BucketType.guild)
@@ -72,9 +72,9 @@ class Other(commands.Cog):
     @commands.command(name='vote', aliases=['upvote'], description="Links to vote for BorderBot")
     @commands.cooldown(1, 10,commands.BucketType.guild)
     async def vote(self, ctx):
-        botListLinks = [("Divine Discord Bot List", "https://divinediscordbots.com/bot/559008680268267528/vote"), ('Botlist.Space', "https://botlist.space/bot/559008680268267528/upvote")]
+        botlist_links = [("Divine Discord Bot List", "https://divinediscordbots.com/bot/559008680268267528/vote"), ('Botlist.Space', "https://botlist.space/bot/559008680268267528/upvote")]
         embed=discord.Embed(color=0xAD1457)
-        for name, link in botListLinks:
+        for name, link in botlist_links:
             embed.add_field(name=name, value=link)
         
         await ctx.send(embed=embed)  
@@ -85,7 +85,7 @@ class Other(commands.Cog):
         if prefix != "current" and ctx.author.guild_permissions.manage_guild:
             await sql.ChangePrefix(ctx.guild.id, prefix)
         else:
-            prefix = await sql.GetPrefixFromDb(ctx.guild.id) or config.prefix
+            prefix = await sql.get_prefix_from_DB(ctx.guild.id) or config.prefix
         
         await ctx.send(f'The prefix is `{prefix}`')
 

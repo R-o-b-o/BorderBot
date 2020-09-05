@@ -14,22 +14,22 @@ class Guild(commands.Cog):
     @commands.cooldown(2,10,commands.BucketType.guild)
     @commands.has_permissions(manage_guild=True)
     async def guildBorder(self, ctx, color="default", size : float=0.1):
-        filepath = await fileHandler.downloadGuildIcon(ctx.guild)
+        filepath = await fileHandler.download_guild_icon(ctx.guild)
         
         if color == "default":
-            color = borderGen.GetMostFrequentColor(filepath)
+            color = borderGen.get_most_frequent_color(filepath)
         
         try:
-            fileBytes = await borderGen.GenerateBasic(filepath, color, size, imageFormat="png")
+            file_bytes = await borderGen.generate_basic(filepath, color, size, image_format="png")
         except ValueError:
             await ctx.send("I could not find color: **%s**\nFor the list of possible color names: https://www.w3schools.com/colors/colors_names.asp" % color)
             return
         
-        await ctx.send(file=discord.File(fileBytes, filename=color + "-" + str(size) + ".png"))
+        await ctx.send(file=discord.File(file_bytes, filename=color + "-" + str(size) + ".png"))
 
-        reactionMessage = await ctx.send("Would you like to use this as the guild icon?")
-        await reactionMessage.add_reaction("❌")
-        await reactionMessage.add_reaction("☑")
+        reaction_msg = await ctx.send("Would you like to use this as the guild icon?")
+        await reaction_msg.add_reaction("❌")
+        await reaction_msg.add_reaction("☑")
 
         def check(reaction, user):
             return user == ctx.author
@@ -38,27 +38,27 @@ class Guild(commands.Cog):
             reaction, _ = await self.bot.wait_for('reaction_add', timeout=60, check=check)
 
             if str(reaction.emoji) == '☑':
-                fileBytes.seek(0)
-                await ctx.guild.edit(icon = fileBytes.read())
-                await reactionMessage.edit(content="The icon has been changed")
+                file_bytes.seek(0)
+                await ctx.guild.edit(icon = file_bytes.read())
+                await reaction_msg.edit(content="The icon has been changed")
             else:
-                await reactionMessage.edit(content="The icon has not been changed")
+                await reaction_msg.edit(content="The icon has not been changed")
         except asyncio.TimeoutError:
             pass
         
-        await reactionMessage.clear_reactions()
+        await reaction_msg.clear_reactions()
     
     @commands.command(name="guildIconReset", hidden=True)
     @commands.has_permissions(manage_guild=True)
     async def guildIconReset(self, ctx):
-        await ctx.guild.edit(icon = await fileHandler.getFileBytesFromFile(f"guilds/{ctx.guild.id}.png"))
+        await ctx.guild.edit(icon = await fileHandler.get_bytes_from_file(f"guilds/{ctx.guild.id}.png"))
         await ctx.message.add_reaction("☑")
     
     @commands.command(name="endSlideshow", description="End guild icon slideshow")
     @commands.has_permissions(manage_guild=True)
     async def endSlideShow(self, ctx):
         await sql.RemoveIconChanger(ctx.guild.id)
-        fileHandler.clearGuildFolder(ctx.guild.id)
+        fileHandler.clear_guild_folder(ctx.guild.id)
         await ctx.send("`The slideshow feature has been disabled for this guild`")
 
     @commands.command(name="slideshow", description='Set up a rotating guild icon', usage='(# of images) (interval time in hours)')
@@ -75,14 +75,14 @@ class Guild(commands.Cog):
         attachments = []
         for _ in range(numImages):    
             try:
-                responseMessage = await self.bot.wait_for('message', timeout=120, check=check)
-                attachments.append(responseMessage.attachments[0].url)
+                response_msg = await self.bot.wait_for('message', timeout=120, check=check)
+                attachments.append(response_msg.attachments[0].url)
             except asyncio.TimeoutError:
                 await ctx.send("`You took too long, you must retry the command`")
                 return
         
         await ctx.channel.trigger_typing()
-        await fileHandler.setupSlideshow(ctx.guild.id, attachments)
+        await fileHandler.setup_slideshow(ctx.guild.id, attachments)
         await sql.AddIconChanger(ctx.guild.id, interval)
 
         await ctx.send("The slideshow has been set up, use `endSlideshow` to end it")
@@ -98,14 +98,14 @@ class Guild(commands.Cog):
         
         count = 0
         while not self.bot.is_closed():
-            iconChanges = [x for x in await sql.GetIconChanages() if count % x[1] == 0]
-            if len(iconChanges) != 0:
-                for iconChange in iconChanges:
-                    filepaths = fileHandler.getFilepaths("guilds/" + str(iconChange[0]) + "/")
+            icon_changes = [x for x in await sql.GetIconChanages() if count % x[1] == 0]
+            if len(icon_changes) != 0:
+                for iconChange in icon_changes:
+                    filepaths = fileHandler.get_filepaths("guilds/" + str(iconChange[0]) + "/")
                     
-                    await self.bot.loop.create_task(self.UpdateGuild(iconChange[0], await fileHandler.getFileBytesFromFile(filepaths[iconChange[2] % len(filepaths)])))
+                    await self.bot.loop.create_task(self.UpdateGuild(iconChange[0], await fileHandler.get_bytes_from_file(filepaths[iconChange[2] % len(filepaths)])))
 
-                await sql.IncrementIconChanger([x[0] for x in iconChanges])
+                await sql.IncrementIconChanger([x[0] for x in icon_changes])
 
                 count += 1
             await asyncio.sleep(3600)
