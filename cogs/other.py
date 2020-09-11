@@ -84,12 +84,12 @@ class Other(commands.Cog):
     async def prefix(self, ctx,  *, prefix='current'):
         if prefix != "current":
             if ctx.author.guild_permissions.manage_guild: 
-                await sql.ChangePrefix(ctx.guild.id, prefix)
+                await sql.change_prefix(ctx.guild.id, prefix)
                 await ctx.send(f'The prefix has been changed to `{prefix}`')
             else: 
                 await ctx.send(f'The current prefix is `{prefix}`, you must have `manage_guild` to change it')
         else:
-            prefix = await sql.GetPrefixFromDb(ctx.guild.id) or config.prefix
+            prefix = await sql.get_prefix_from_DB(ctx.guild.id) or config.prefix
             await ctx.send(f'The prefix is `{prefix}`')
 
     @commands.command(name='help', description="Help command")

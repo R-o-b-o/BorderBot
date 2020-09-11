@@ -45,6 +45,9 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.NotOwner):
         await ctx.send("This command can only be made by the **bot owner**")
 
+    elif isinstance(error, commands.BadArgument) and str(error).startswith('Member "') and str(error).endswith('" not found'):
+        await ctx.send(f"{str(error)}, try sending the full name/nickname, a mention, or their user id")
+
     else:
         await ctx.send(f"Something went wrong, consider reading the **{(await get_prefix(bot, ctx.message))[2]}help {ctx.invoked_with}**")
 
@@ -67,7 +70,7 @@ async def on_command_completion(ctx):
 
 @bot.event
 async def on_guild_join(guild):
-    await sql.AddGuild(guild.id)
+    await sql.add_guild(guild.id)
 
     embed = discord.Embed(title="Joined server", colour=discord.Colour(0x42f492), description=f"**{guild.name}**", timestamp=datetime.now())
     embed.set_thumbnail(url=guild.icon_url)
@@ -77,7 +80,7 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_guild_remove(guild): 
-    await sql.RemoveGuild(guild.id)
+    await sql.remove_guild(guild.id)
 
     embed = discord.Embed(title="Left server", colour=discord.Colour(0xf43c70), description=f"**{guild.name}**", timestamp=datetime.now())
     embed.set_thumbnail(url=guild.icon_url)

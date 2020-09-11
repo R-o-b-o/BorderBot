@@ -30,26 +30,26 @@ async def get_prefix_from_DB(guild_id):
 async def add_guilds(guild_ids):
     for guild_id in guild_ids:
         if (await execute_SQL_reader('SELECT NOT EXISTS (SELECT 1 FROM Prefixes WHERE GuildID=?)', guild_id))[0][0]:
-            await AddGuild(guild_id)
+            await add_guild(guild_id)
 
-async def AddIconChanger(guild_id, interval):
+async def add_icon_changer(guild_id, interval):
     await execute_SQL('INSERT OR REPLACE INTO IconChanger VALUES (?, ?, ?)', guild_id, interval, 0)
 
-async def RemoveIconChanger(guild_id):
+async def remove_icon_changer(guild_id):
     await execute_SQL('DELETE FROM IconChanger WHERE GuildID=?', guild_id)
 
-async def IncrementIconChanger(guild_ids):
+async def increment_icon_changer(guild_ids):
     await execute_SQL(f"UPDATE IconChanger SET ImageIndex = ImageIndex + 1 WHERE GuildID in ({','.join([str(x) for x in guild_ids])})")
 
-async def GetIconChanages():
+async def get_icon_changes():
     return await execute_SQL_reader('SELECT * FROM IconChanger')
 
-async def ChangePrefix(guild_id, prefix):
+async def change_prefix(guild_id, prefix):
     await execute_SQL('UPDATE Prefixes SET Prefix=? WHERE GuildID=?', prefix, guild_id)
 
-async def AddGuild(guild_id):
+async def add_guild(guild_id):
     await execute_SQL('INSERT INTO Prefixes(GuildID) VALUES (?)', guild_id)
 
-async def RemoveGuild(guild_id):
+async def remove_guild(guild_id):
     await execute_SQL('DELETE FROM Prefixes    WHERE GuildID=?', guild_id)
     await execute_SQL('DELETE FROM IconChanger WHERE GuildID=?', guild_id)

@@ -57,7 +57,7 @@ class Guild(commands.Cog):
     @commands.command(name="endSlideshow", description="End guild icon slideshow")
     @commands.has_permissions(manage_guild=True)
     async def endSlideShow(self, ctx):
-        await sql.RemoveIconChanger(ctx.guild.id)
+        await sql.remove_icon_changer(ctx.guild.id)
         fileHandler.clear_guild_folder(ctx.guild.id)
         await ctx.send("`The slideshow feature has been disabled for this guild`")
 
@@ -83,7 +83,7 @@ class Guild(commands.Cog):
         
         await ctx.channel.trigger_typing()
         await fileHandler.setup_slideshow(ctx.guild.id, attachments)
-        await sql.AddIconChanger(ctx.guild.id, interval)
+        await sql.add_icon_changer(ctx.guild.id, interval)
 
         await ctx.send("The slideshow has been set up, use `endSlideshow` to end it")
 
@@ -98,14 +98,14 @@ class Guild(commands.Cog):
         
         count = 0
         while not self.bot.is_closed():
-            icon_changes = [x for x in await sql.GetIconChanages() if count % x[1] == 0]
+            icon_changes = [x for x in await sql.get_icon_changes() if count % x[1] == 0]
             if len(icon_changes) != 0:
                 for iconChange in icon_changes:
                     filepaths = fileHandler.get_filepaths("guilds/" + str(iconChange[0]) + "/")
                     
                     await self.bot.loop.create_task(self.UpdateGuild(iconChange[0], await fileHandler.get_bytes_from_file(filepaths[iconChange[2] % len(filepaths)])))
 
-                await sql.IncrementIconChanger([x[0] for x in icon_changes])
+                await sql.increment_icon_changer([x[0] for x in icon_changes])
 
                 count += 1
             await asyncio.sleep(3600)

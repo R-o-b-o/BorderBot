@@ -1,5 +1,5 @@
-discord.py>=1.2.5
-aiofiles>=0.4.0
+discord.py>=1.4.1
+aiofiles>=0.5.0
 Pillow>=7.0.0
 python-dotenv>=0.10.5
 asgiref>=3.2.1
