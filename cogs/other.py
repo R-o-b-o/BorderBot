@@ -39,6 +39,14 @@ class Other(commands.Cog):
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         await ctx.send(embed=embed)
 
+    @commands.command(name='privacy', description="Privacy policy", aliases=['privacypolicy'])
+    @commands.cooldown(5,600,commands.BucketType.guild)
+    async def privacy(self, ctx):
+        f = open("Privacy.md", "r")
+        embed=discord.Embed(title="Privacy policy", description=f.read(), color=0x535CFF)
+        embed.set_thumbnail(url="https://media.discordapp.net/attachments/559312153417482261/828837428043055104/BorderBot_Redesign_blue.png?width=488&height=488")
+        await ctx.send(embed=embed)
+
     @commands.command(name='stats', description="Bot stats")
     async def stats(self, ctx):
         await ctx.channel.trigger_typing()
@@ -66,7 +74,7 @@ class Other(commands.Cog):
     @commands.command(name='invite', description="Bot invite link", aliases=['link'], hidden=True)
     @commands.cooldown(1, 10,commands.BucketType.guild)
     async def invite(self, ctx):
-        embed=discord.Embed(title="Bot Invite", description="https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=536996960", color=0xAD1457)
+        embed=discord.Embed(title="Bot Invite", description="[add me to your server](https://discordapp.com/oauth2/authorize?&client_id=559008680268267528&scope=bot&permissions=536996960)", color=0xAD1457)
         await ctx.send(embed=embed)
     
     @commands.command(name='vote', aliases=['upvote'], description="Links to vote for BorderBot")
@@ -81,13 +89,16 @@ class Other(commands.Cog):
 
     @commands.command(name='prefix', description="Get or change the bot prefix", usage="[new prefix]")
     @commands.cooldown(2, 10,commands.BucketType.guild)
-    async def prefix(self, ctx,  *, prefix='current'):
-        if prefix != "current":
+    async def prefix(self, ctx,  *, prefix='|current|'):
+        if prefix != "|current|":
             if ctx.author.guild_permissions.manage_guild: 
+                if len(prefix) > 20:
+                    await ctx.send("Please keep the prefix under 20 characters")
+                    return
                 await sql.change_prefix(ctx.guild.id, prefix)
                 await ctx.send(f'The prefix has been changed to `{prefix}`')
             else: 
-                await ctx.send(f'The current prefix is `{prefix}`, you must have `manage_guild` to change it')
+                await ctx.send(f'The current prefix is `{config.prefix}`, you must have `manage_guild` to change it')
         else:
             prefix = await sql.get_prefix_from_DB(ctx.guild.id) or config.prefix
             await ctx.send(f'The prefix is `{prefix}`')

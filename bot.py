@@ -1,6 +1,6 @@
 import logging
 import discord, asyncio, json, aiohttp
-from discord.ext import commands
+from discord.ext import commands, tasks
 from datetime import datetime
 from utils import fileHandler, borderGen, sql
 import config
@@ -12,17 +12,29 @@ async def get_prefix(bot, message):
         prefix = config.prefix
     return commands.when_mentioned_or(prefix)(bot, message)
 
-bot = commands.Bot(command_prefix=get_prefix, description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM", owner_id=config.owner_id, case_insensitive=True, help_command=None)
+intents = discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(command_prefix=get_prefix,
+                   description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM",
+                   owner_id=config.owner_id,
+                   case_insensitive=True,
+                   help_command=None,
+                   intents=intents)
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
+    update_presence.start()
 
     bot.loop.create_task(log_guild_stats())
-    bot.loop.create_task(update_botlists())
+    # bot.loop.create_task(update_botlists())
     
     await sql.add_guilds(guild.id for guild in bot.guilds)
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
+
+@tasks.loop(minutes=5.0)
+async def update_presence():
+    await bot.change_presence(activity=discord.Game(f"{config.prefix}help"))
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -45,11 +57,11 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.NotOwner):
         await ctx.send("This command can only be made by the **bot owner**")
 
-    elif isinstance(error, commands.BadArgument) and str(error).startswith('Member "') and str(error).endswith('" not found'):
+    elif isinstance(error, commands.MemberNotFound):
         await ctx.send(f"{str(error)}, try sending the full name/nickname, a mention, or their user id")
 
     else:
-        await ctx.send(f"Something went wrong, consider reading the **{(await get_prefix(bot, ctx.message))[2]}help {ctx.invoked_with}**")
+        await ctx.send(f"Something went wrong, consider reading the {(await get_prefix(bot, ctx.message))[2]}help {ctx.invoked_with} or join the support server: https://discord.gg/fZJqTAz")
 
 @bot.event
 async def on_user_update(before, after):

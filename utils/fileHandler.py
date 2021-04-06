@@ -73,7 +73,7 @@ def get_filepaths(filepath):
     filepaths = []
     for file in os.listdir(filepath):
         filepaths.append(filepath + file)
-    filepaths.sort(key=os.path.getctime)
+    filepaths.sort(key=os.path.getmtime)
     return filepaths
 
 async def download_texture(filename, url):
