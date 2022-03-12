@@ -15,7 +15,7 @@ async def get_prefix(bot, message):
 intents = discord.Intents.default()
 intents.members = True
 
-bot = commands.Bot(command_prefix=get_prefix,
+bot = commands.AutoShardedBot(command_prefix=get_prefix,
                    description="A bot to add colorful borders to an avatar! Support Server: https://discord.gg/Dy3anFM",
                    owner_id=config.owner_id,
                    case_insensitive=True,
