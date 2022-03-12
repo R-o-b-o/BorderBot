@@ -20,11 +20,12 @@ bot = commands.Bot(command_prefix=get_prefix,
                    owner_id=config.owner_id,
                    case_insensitive=True,
                    help_command=None,
-                   intents=intents)
+                   intents=intents,
+                   activity=discord.Game(f"{config.prefix}help"))
 
 @bot.event
 async def on_ready():
-    update_presence.start()
+    # update_presence.start()
 
     bot.loop.create_task(log_guild_stats())
     # bot.loop.create_task(update_botlists())

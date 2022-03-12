@@ -4,18 +4,18 @@ import os, random, math, asyncio
 from timeit import default_timer as timer
 from utils import fileHandler, borderGen
 
-from keras.preprocessing.image import load_img
-from keras.preprocessing.image import img_to_array
-from keras.models import load_model
+# from keras.preprocessing.image import load_img
+# from keras.preprocessing.image import img_to_array
+# from keras.models import load_model
 
-model = load_model('anime_model.h5')
+# model = load_model('anime_model.h5')
 
-async def has_anime_avatar(user):
-    filepath = await fileHandler.download_avatar(user)
-    img = load_img(filepath, target_size=(200, 200))
-    img = img_to_array(img) / 255
-    img = img.reshape(1, 200, 200, 3)
-    return 1 - model.predict(img)[0][0]
+# async def has_anime_avatar(user):
+#     filepath = await fileHandler.download_avatar(user)
+#     img = load_img(filepath, target_size=(200, 200))
+#     img = img_to_array(img) / 255
+#     img = img.reshape(1, 200, 200, 3)
+#     return 1 - model.predict(img)[0][0]
 
 class Avatar(commands.Cog):
     
@@ -135,19 +135,19 @@ class Avatar(commands.Cog):
         file_bytes, colors = borderGen.get_dominant_colors_image(filepath, numColors)
         await ctx.send("```css\n"+', '.join(colors)+"\n```", file=discord.File(file_bytes, filename="colors.png"))
 
-    @commands.command(name='weebcheck', description='Determine weebyness from your avatar', aliases=['weeb'], usage="[@user]")
-    @commands.cooldown(2, 5, commands.BucketType.user)
-    async def weebCheck(self, ctx, member : discord.Member = None):
-        if member is None:
-            member = ctx.author
-        await ctx.channel.trigger_typing()
+    # @commands.command(name='weebcheck', description='Determine weebyness from your avatar', aliases=['weeb'], usage="[@user]")
+    # @commands.cooldown(2, 5, commands.BucketType.user)
+    # async def weebCheck(self, ctx, member : discord.Member = None):
+    #     if member is None:
+    #         member = ctx.author
+    #     await ctx.channel.trigger_typing()
 
-        weeb = await has_anime_avatar(member) * 100
+    #     weeb = await has_anime_avatar(member) * 100
 
-        if weeb >= 50:
-            await ctx.send(f"I am **{weeb:.2f}%** sure {member.mention} is a weeb")
-        else:
-            await ctx.send(f"I am **{(100 - weeb):.2f}%** sure {member.mention} is not a weeb")
+    #     if weeb >= 50:
+    #         await ctx.send(f"I am **{weeb:.2f}%** sure {member.mention} is a weeb")
+    #     else:
+    #         await ctx.send(f"I am **{(100 - weeb):.2f}%** sure {member.mention} is not a weeb")
 
 
 def setup(bot):
