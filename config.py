@@ -8,8 +8,9 @@ ddblToken = env.get('DDBLTOKEN')
 blsToken = env.get('BLSTOKEN')
 
 prefix = "b!"
-image_format = "png" #the static image format that the bot downloads and uploads
-max_size = (1024, 1024) #the maximum image size for the border image
+image_format = "png"    # the static image format that the bot downloads and uploads
+storage_format = "webp" # change to avif when pillow adds support
+max_size = (1024, 1024) # the maximum image size for the border image
 
 cogs = [f'cogs.{cog}' for cog in ['avatar', 'border', 'guild', 'other', 'owner']]
 

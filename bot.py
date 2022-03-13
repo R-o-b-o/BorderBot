@@ -22,7 +22,7 @@ bot = commands.AutoShardedBot(command_prefix=get_prefix,
                    help_command=None,
                    intents=intents,
                    activity=discord.Game(f"{config.prefix}help"),
-                   chunk_guilds_at_startup=False)
+                   chunk_guilds_at_startup=True)
 
 @bot.event
 async def on_ready():
@@ -34,8 +34,8 @@ async def on_ready():
     await sql.add_guilds(guild.id for guild in bot.guilds)
     print(f'Logged in as {bot.user.name} - {bot.user.id}')
 
-    for guild in bot.guilds:
-        await guild.chunk(cache=True)
+    # for guild in bot.guilds:
+    #     await guild.chunk(cache=True)
 
 @tasks.loop(minutes=5.0)
 async def update_presence():
